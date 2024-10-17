@@ -19,27 +19,33 @@ export interface IUser extends Document {
   SignAccessToken: () => string;
 }
 
-const UserSchema: Schema<IUser> = new mongoose.Schema({
-  firstName: { type: String, required: [true, "Please enter your first name"] },
-  lastName: { type: String, required: [true, "Please enter your last name"] },
-  username: { type: String, unique: true, trim: true, sparse: true },
-  email: {
-    type: String,
-    required: [true, "Please enter your email"],
-    validate: {
-      validator: function (value: string) {
-        return emailRegexPattern.test(value);
-      },
-      message: "Please enter a valid email",
+const UserSchema: Schema<IUser> = new mongoose.Schema(
+  {
+    firstName: {
+      type: String,
+      required: [true, "Please enter your first name"],
     },
-    unique: true,
+    lastName: { type: String, required: [true, "Please enter your last name"] },
+    username: { type: String, unique: true, trim: true, sparse: true },
+    email: {
+      type: String,
+      required: [true, "Please enter your email"],
+      validate: {
+        validator: function (value: string) {
+          return emailRegexPattern.test(value);
+        },
+        message: "Please enter a valid email",
+      },
+      unique: true,
+    },
+    password: {
+      type: String,
+      minlength: [6, "Password must be at least 6 characters"],
+      select: false,
+    },
   },
-  password: {
-    type: String,
-    minlength: [6, "Password must be at least 6 characters"],
-    select: false,
-  },
-});
+  { timestamps: true }
+);
 
 // Hash Password before saving
 UserSchema.pre<IUser>("save", async function (next) {

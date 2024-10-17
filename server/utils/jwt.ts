@@ -1,6 +1,6 @@
 require("dotenv").config();
 import { Response } from "express";
-import { IUser } from "../models/user.models";
+import { IUser } from "../models/user.model";
 
 interface ITokenOptions {
   expires: Date;
@@ -11,13 +11,10 @@ interface ITokenOptions {
 }
 
 // parse environment variables to integrates with fallback values
-const accessTokenExpire = parseInt(
-  process.env.JWT_EXPIRES || "300",
-  10
-);
+const accessTokenExpire = parseInt(process.env.JWT_EXPIRES || "300", 10);
 
 // options for cookies
- export const accessTokenOptions: ITokenOptions = {
+export const accessTokenOptions: ITokenOptions = {
   expires: new Date(Date.now() + accessTokenExpire * 60 * 60 * 1000),
   maxAge: accessTokenExpire * 60 * 60 * 1000,
   httpOnly: true,
@@ -25,7 +22,7 @@ const accessTokenExpire = parseInt(
 };
 
 export const sendToken = (user: IUser, statusCode: number, res: Response) => {
-    const accessToken = user.SignAccessToken();
+  const accessToken = user.SignAccessToken();
 
   // Only set secure to true in production
   if (process.env.NODE_ENV === "production") {

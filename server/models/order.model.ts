@@ -24,7 +24,8 @@ export type IOrderItem = {
   buyer: string;
 };
 
-const OrderSchema: Schema<IOrder> = new Schema({
+const OrderSchema: Schema<IOrder> = new Schema(
+  {
     createdAt: {
       type: Date,
       default: Date.now,
@@ -39,13 +40,15 @@ const OrderSchema: Schema<IOrder> = new Schema({
     },
     event: {
       type: Schema.Types.ObjectId,
-      ref: 'Event',
+      ref: "Event",
     },
     buyer: {
       type: Schema.Types.ObjectId,
-      ref: 'User',
+      ref: "User",
     },
-  })
+  },
+  { timestamps: true }
+);
 
 const Order: Model<IOrder> = mongoose.model("Order", OrderSchema);
 export default Order;
