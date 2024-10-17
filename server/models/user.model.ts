@@ -15,6 +15,8 @@ export interface IUser extends Document {
     public_id: string;
     url: string;
   };
+  events: [{ type: mongoose.Schema.Types.ObjectId; ref: "Event" }];
+  orders: [{ type: mongoose.Schema.Types.ObjectId; ref: "Order" }];
   comparePassword: (password: string) => Promise<boolean>;
   SignAccessToken: () => string;
 }
@@ -43,6 +45,12 @@ const UserSchema: Schema<IUser> = new mongoose.Schema(
       minlength: [6, "Password must be at least 6 characters"],
       select: false,
     },
+    avatar: {
+      public_id: String,
+      url: String,
+    },
+    events: [{ type: mongoose.Schema.Types.ObjectId, ref: "Event" }],
+    orders: [{ type: mongoose.Schema.Types.ObjectId, ref: "Order" }],
   },
   { timestamps: true }
 );
@@ -59,7 +67,7 @@ UserSchema.pre<IUser>("save", async function (next) {
 // sign access token
 UserSchema.methods.SignAccessToken = function () {
   return jwt.sign({ id: this._id }, process.env.ACCESS_TOKEN || "", {
-    expiresIn: "7d",
+    expiresIn: "1h",
   });
 };
 

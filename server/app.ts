@@ -6,7 +6,7 @@ import cookieParser from "cookie-parser";
 import { Request, Response } from "express";
 import { ErrorMiddleware } from "./middleware/error";
 import authRouter from "./routes/auth.route";
-// import userRouter from "./routes/user.route";
+import userRouter from "./routes/user.route";
 // import courseRouter from "./routes/course.route";
 // import orderRouter from "./routes/order.route";
 // import notificationRouter from "./routes/notification.route";
@@ -31,7 +31,7 @@ app.use(
 );
 
 //routes
-app.use("/api/v1", authRouter);
+app.use("/api/v1", authRouter, userRouter);
 
 //testing route
 app.get("/test", (req: Request, res: Response, next: NextFunction) => {
