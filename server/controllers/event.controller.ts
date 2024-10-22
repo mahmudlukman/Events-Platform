@@ -92,19 +92,40 @@ export const getEventById = catchAsyncError(
 export const updateEvent = catchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const userId = req.user._id;
+      const userId = req.user?._id;
       const { event }: UpdateEventParams = req.body;
 
       const eventToUpdate = await Event.findById(event._id);
-      if (!eventToUpdate || eventToUpdate.organizer.toString() !== userId) {
-        return next(new ErrorHandler("Unauthorized or event not found", 401));
+
+      if (!eventToUpdate) {
+        return next(new ErrorHandler("Event not found", 401));
       }
+
+      const organizerId = eventToUpdate.organizer.toString();
+      const requestUserId = userId.toString();
+
+      if (organizerId !== requestUserId) {
+        return next(
+          new ErrorHandler("Unauthorized: You are not the event organizer", 403)
+        );
+      }
+
+      const updateData = {
+        ...event,
+        category: event.categoryId,
+        // Preserve the original organizer
+        organizer: eventToUpdate.organizer,
+      };
 
       const updatedEvent = await Event.findByIdAndUpdate(
         event._id,
-        { ...event, category: event.categoryId },
+        updateData,
         { new: true }
-      );
+      ).populate("category");
+
+      if (!updatedEvent) {
+        return next(new ErrorHandler("Failed to update event", 500));
+      }
 
       res.status(200).json({
         success: true,
