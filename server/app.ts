@@ -8,7 +8,7 @@ import { ErrorMiddleware } from "./middleware/error";
 import authRouter from "./routes/auth.route";
 import userRouter from "./routes/user.route";
 import categoryRouter from "./routes/category.route";
-// import orderRouter from "./routes/order.route";
+import eventRouter from "./routes/event.route";
 // import notificationRouter from "./routes/notification.route";
 // import analyticsRouter from "./routes/analytics.route";
 // import layoutRouter from "./routes/layout.route";
@@ -31,7 +31,7 @@ app.use(
 );
 
 //routes
-app.use("/api/v1", authRouter, userRouter, categoryRouter);
+app.use("/api/v1", authRouter, userRouter, categoryRouter, eventRouter);
 
 //testing route
 app.get("/test", (req: Request, res: Response, next: NextFunction) => {

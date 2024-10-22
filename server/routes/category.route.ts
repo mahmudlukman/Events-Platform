@@ -3,10 +3,10 @@ import {
   createCategory,
   getAllCategories,
 } from "../controllers/category.controller";
-import { isAuthenticated } from "../middleware/auth";
-const userRouter = express.Router();
 
-userRouter.post("/create-category", createCategory);
-userRouter.get("/categories", getAllCategories);
+const categoryRouter = express.Router();
 
-export default userRouter;
+categoryRouter.post("/create-category", createCategory);
+categoryRouter.get("/categories", getAllCategories);
+
+export default categoryRouter;
