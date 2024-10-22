@@ -97,7 +97,7 @@ export type CreateUserParams = {
   
   // ====== CATEGORY PARAMS
   export type CreateCategoryParams = {
-    categoryName: string
+    name: string
   }
   
   // ====== ORDER PARAMS
