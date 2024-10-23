@@ -5,6 +5,7 @@ import Category from "../models/category.model";
 import User from "../models/user.model";
 import { CreateEventParams, UpdateEventParams } from "../@types";
 import Event from "../models/event.model";
+import cloudinary from "cloudinary";
 
 // get category by name
 export const getCategoryByName = catchAsyncError(
@@ -44,11 +45,26 @@ export const createEvent = catchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const userId = req.user._id;
-      const { event }: CreateEventParams = req.body;
+      const { event } = req.body;
+      const image = event.image;
 
       const organizer = await User.findById(userId);
       if (!organizer) {
         return next(new ErrorHandler("Organizer not found", 404));
+      }
+
+      if (image) {
+        const myCloud = await cloudinary.v2.uploader.upload(image, {
+          folder: "event",
+          width: 800,
+          height: 500,
+          crop: "fill",
+          quality: 90,
+        });
+        event.image = {
+          public_id: myCloud.public_id,
+          url: myCloud.secure_url,
+        };
       }
 
       const newEvent = await Event.create({
@@ -93,7 +109,8 @@ export const updateEvent = catchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const userId = req.user?._id;
-      const { event }: UpdateEventParams = req.body;
+      const { event } = req.body;
+      const image = event.image;
 
       const eventToUpdate = await Event.findById(event._id);
 
@@ -108,6 +125,23 @@ export const updateEvent = catchAsyncError(
         return next(
           new ErrorHandler("Unauthorized: You are not the event organizer", 403)
         );
+      }
+
+      if (image && image.startsWith("https")) {
+        await cloudinary.v2.uploader.destroy(eventToUpdate.image.public_id);
+        const myCloud = await cloudinary.v2.uploader.upload(image, {
+          folder: "courses",
+        });
+        event.image = {
+          public_id: myCloud.public_id,
+          url: myCloud.secure_url,
+        };
+      }
+      if (image.startsWith("https")) {
+        event.image = {
+          public_id: eventToUpdate?.image.public_id,
+          url: eventToUpdate?.image.url,
+        };
       }
 
       const updateData = {
