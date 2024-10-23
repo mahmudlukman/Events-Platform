@@ -63,9 +63,9 @@ export type DeleteEventParams = {
 export type GetAllEventsParams = {
   query?: string;
   category?: string;
-  page?: number;
-  pageSize?: number;
-  sortBy?: "recent" | "oldest" | string;
+  page?: string | number;
+  pageSize?: string | number;
+  sortBy?: 'recent' | 'oldest';
 };
 
 export type GetEventsByUserParams = {

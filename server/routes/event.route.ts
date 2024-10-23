@@ -2,6 +2,7 @@ import express from "express";
 import {
   createEvent,
   deleteEvent,
+  getAllEvents,
   getCategoryByName,
   getEventById,
   getEventsByUser,
@@ -16,6 +17,7 @@ eventRouter.post("/create-event", isAuthenticated, createEvent);
 eventRouter.get("/get-event/:id", getEventById);
 eventRouter.get("/get-user-event", getEventsByUser);
 eventRouter.get("/get-related-event", getRelatedEventsByCategory);
+eventRouter.get("/get-events", getAllEvents);
 eventRouter.put("/update-event", isAuthenticated, updateEvent);
 eventRouter.delete("/delete-event/:eventId", isAuthenticated, deleteEvent);
 

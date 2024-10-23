@@ -3,18 +3,24 @@ import { catchAsyncError } from "../middleware/catchAsyncError";
 import ErrorHandler from "../utils/errorHandler";
 import Category from "../models/category.model";
 import User from "../models/user.model";
-import { CreateEventParams, UpdateEventParams } from "../@types";
+import { CreateEventParams, GetAllEventsParams, UpdateEventParams } from "../@types";
 import Event from "../models/event.model";
 import cloudinary from "cloudinary";
 
-// get category by name
+
+export const findCategoryByName = async (name: string) => {
+  const category = await Category.findOne({
+    name: { $regex: name, $options: "i" },
+  });
+  return category;
+};
+
+// Get Category By Name
 export const getCategoryByName = catchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { name } = req.body;
-      const category = await Category.findOne({
-        name: { $regex: name, $options: "i" },
-      });
+      const category = await findCategoryByName(name);
 
       if (!category) {
         return next(new ErrorHandler("Category not found", 400));
@@ -195,76 +201,73 @@ export const deleteEvent = catchAsyncError(
   }
 );
 
-interface IPaginationQuery {
-  page?: number;
-  pageSize?: number;
-  sortBy?: string;
-}
 
 // GET ALL EVENTS
-// export const getAllEvents = catchAsyncError(
-//   async (req: Request, res: Response, next: NextFunction) => {
-//     try {
-//       const {
-//         query,
-//         category,
-//         page = 1,
-//         pageSize = 10,
-//         sortBy = "recent",
-//       } = req.query;
+export const getAllEvents = catchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      // Type cast query parameters with default values
+      const {
+        query,
+        category,
+        page = '1',
+        pageSize = '10',
+        sortBy = 'recent'
+      } = req.query as GetAllEventsParams;
 
-//       const skipAmount = (Number(page) - 1) * Number(pageSize);
+      const skipAmount = (Number(page) - 1) * Number(pageSize);
 
-//       // Sorting options
-//       let sortOptions = {};
-//       switch (sortBy) {
-//         case "recent":
-//           sortOptions = { createdAt: -1 };
-//           break;
-//         case "oldest":
-//           sortOptions = { createdAt: 1 };
-//           break;
-//         // Add more sorting options as needed
-//         default:
-//           sortOptions = { createdAt: -1 };
-//           break;
-//       }
+      // Sorting options
+      let sortOptions: Record<string, 1 | -1> = {};
+      switch (sortBy) {
+        case "recent":
+          sortOptions = { createdAt: -1 };
+          break;
+        case "oldest":
+          sortOptions = { createdAt: 1 };
+          break;
+        default:
+          sortOptions = { createdAt: -1 };
+          break;
+      }
 
-//       // Build query conditions
-//       const titleCondition = query
-//         ? { title: { $regex: query, $options: "i" } }
-//         : {};
-//       const categoryCondition = category
-//         ? await getCategoryByName(category)
-//         : null;
-//       const conditions = {
-//         $and: [
-//           titleCondition,
-//           categoryCondition ? { category: categoryCondition._id } : {},
-//         ],
-//       };
+      // Build query conditions
+      const titleCondition = query
+        ? { title: { $regex: query, $options: "i" } }
+        : {};
 
-//       const events = await populateEvent(
-//         Event.find(conditions)
-//           .sort(sortOptions)
-//           .skip(skipAmount)
-//           .limit(Number(pageSize))
-//       );
+      let categoryCondition = null;
+      if (category && typeof category === 'string') {
+        categoryCondition = await findCategoryByName(category);
+      }
 
-//       const totalEvents = await Event.countDocuments(conditions);
-//       const isNext = totalEvents > skipAmount + events.length;
+      const conditions = {
+        $and: [
+          titleCondition,
+          categoryCondition ? { category: categoryCondition._id } : {},
+        ],
+      };
 
-//       res.status(200).json({
-//         success: true,
-//         events,
-//         isNext,
-//       });
-//     } catch (error: any) {
-//       return next(new ErrorHandler(error.message, 400));
-//     }
-//   }
-// );
+      const events = await populateEvent(
+        Event.find(conditions)
+          .sort(sortOptions)
+          .skip(skipAmount)
+          .limit(Number(pageSize))
+      );
 
+      const totalEvents = await Event.countDocuments(conditions);
+      const isNext = totalEvents > skipAmount + events.length;
+
+      res.status(200).json({
+        success: true,
+        events,
+        isNext,
+      });
+    } catch (error: any) {
+      return next(new ErrorHandler(error.message, 400));
+    }
+  }
+);
 // GET EVENTS BY ORGANIZER
 export const getEventsByUser = catchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
