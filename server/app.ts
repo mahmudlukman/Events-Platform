@@ -9,9 +9,7 @@ import authRouter from "./routes/auth.route";
 import userRouter from "./routes/user.route";
 import categoryRouter from "./routes/category.route";
 import eventRouter from "./routes/event.route";
-// import notificationRouter from "./routes/notification.route";
-// import analyticsRouter from "./routes/analytics.route";
-// import layoutRouter from "./routes/layout.route";
+import orderRouter from "./routes/order.route";
 
 //body parser
 
@@ -31,7 +29,14 @@ app.use(
 );
 
 //routes
-app.use("/api/v1", authRouter, userRouter, categoryRouter, eventRouter);
+app.use(
+  "/api/v1",
+  authRouter,
+  userRouter,
+  categoryRouter,
+  eventRouter,
+  orderRouter
+);
 
 //testing route
 app.get("/test", (req: Request, res: Response, next: NextFunction) => {

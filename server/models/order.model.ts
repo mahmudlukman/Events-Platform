@@ -1,7 +1,6 @@
 import mongoose, { Document, Model, Schema } from "mongoose";
 
 export interface IOrder extends Document {
-  createdAt: Date;
   paymentId: string;
   totalAmount: string;
   event: {
@@ -18,7 +17,6 @@ export interface IOrder extends Document {
 export type IOrderItem = {
   _id: string;
   totalAmount: string;
-  createdAt: Date;
   eventTitle: string;
   eventId: string;
   buyer: string;
@@ -26,10 +24,6 @@ export type IOrderItem = {
 
 const OrderSchema: Schema<IOrder> = new Schema(
   {
-    createdAt: {
-      type: Date,
-      default: Date.now,
-    },
     paymentId: {
       type: String,
       required: true,
