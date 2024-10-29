@@ -1,23 +1,31 @@
-import React from 'react';
-import Image from 'next/image';
-import Link from 'next/link';
-import { Button } from '@/components/ui/button';
-import CategoryFilter from '@/components/shared/CategoryFilter';
-import Collection from '@/components/shared/Collection';
-import Search from '@/components/shared/Search';
-import { useGetAllEventsQuery } from '@/redux/features/event/eventApi';
-import { SearchParamProps } from '@/types';
+"use client";
 
-const Home = ({ searchParams }: SearchParamProps) => {
-  const page = Number(searchParams?.page) || 1;
-  const query = (searchParams?.query as string) || '';
-  const category = (searchParams?.category as string) || '';
-  
-  const { data: events, isLoading, error } = useGetAllEventsQuery({
+import React from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { useSearchParams } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import CategoryFilter from "@/components/shared/CategoryFilter";
+import Collection from "@/components/shared/Collection";
+import Search from "@/components/shared/Search";
+import { useGetAllEventsQuery } from "@/redux/features/event/eventApi";
+
+const Home = () => {
+  const searchParams = useSearchParams();
+
+  const page = Number(searchParams.get("page")) || 1;
+  const query = searchParams.get("query") || "";
+  const category = searchParams.get("category") || "";
+
+  const {
+    data: events,
+    isLoading,
+    error,
+  } = useGetAllEventsQuery({
     query,
     category,
     page,
-    pageSize: 6
+    pageSize: 6,
   });
 
   return (
@@ -29,7 +37,8 @@ const Home = ({ searchParams }: SearchParamProps) => {
               Host, Connect, Celebrate: Your Events, Our Platform!
             </h1>
             <p className="p-regular-20 md:p-regular-24">
-              Book and learn helpful tips from 3,168+ mentors in world-class companies with our global community.
+              Book and learn helpful tips from 3,168+ mentors in world-class
+              companies with our global community.
             </p>
             <Button size="lg" asChild className="button w-full sm:w-fit">
               <Link href="#events">Explore Now</Link>
@@ -46,7 +55,10 @@ const Home = ({ searchParams }: SearchParamProps) => {
         </div>
       </section>
 
-      <section id="events" className="wrapper my-8 flex flex-col gap-8 md:gap-12">
+      <section
+        id="events"
+        className="wrapper my-8 flex flex-col gap-8 md:gap-12"
+      >
         <h2 className="h2-bold">
           Trust by <br /> Thousands of Events
         </h2>
@@ -62,7 +74,9 @@ const Home = ({ searchParams }: SearchParamProps) => {
           </div>
         ) : error ? (
           <div className="flex-center min-h-[200px] w-full">
-            <p className="p-regular-16 text-red-500">Error loading events. Please try again.</p>
+            <p className="p-regular-16 text-red-500">
+              Error loading events. Please try again.
+            </p>
           </div>
         ) : (
           <Collection
