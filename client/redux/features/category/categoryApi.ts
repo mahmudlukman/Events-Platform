@@ -1,5 +1,5 @@
 import { apiSlice } from "../api/apiSlice";
-import { getEventsFromResult } from "../../helper";
+import { getCategoriesFromResult } from "../../helper";
 
 export const categoriesApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
@@ -10,7 +10,7 @@ export const categoriesApi = apiSlice.injectEndpoints({
         credentials: "include" as const,
       }),
       providesTags: (result) => [
-        ...getEventsFromResult(result),
+        ...getCategoriesFromResult(result),
         { type: "Category", id: "LIST" },
       ],
     }),

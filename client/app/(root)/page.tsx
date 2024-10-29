@@ -28,8 +28,6 @@ const Home = () => {
     pageSize: 6,
   });
 
-  console.log(events?.events)
-
   return (
     <>
       <section className="bg-primary-50 bg-dotted-pattern bg-contain py-5 md:py-10">
