@@ -5,7 +5,7 @@ export const categoriesApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     getAllCategories: builder.query({
       query: () => ({
-        url: "create-category",
+        url: "categories",
         method: "GET",
         credentials: "include" as const,
       }),
@@ -16,7 +16,7 @@ export const categoriesApi = apiSlice.injectEndpoints({
     }),
     createCategory: builder.mutation({
       query: (data) => ({
-        url: "categories",
+        url: "create-category",
         method: "POST",
         body: data,
         credentials: "include" as const,

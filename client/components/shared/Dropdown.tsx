@@ -42,6 +42,8 @@ const Dropdown = ({ value, onChangeHandler }: DropdownProps) => {
   const [createCategory, { isLoading: isCreating }] =
     useCreateCategoryMutation();
 
+    console.log(categories)
+
   const handleAddCategory = async () => {
     if (!newCategory.trim()) return;
 
