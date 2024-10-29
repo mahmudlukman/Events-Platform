@@ -92,7 +92,7 @@ const Header = () => {
             </>
           ) : (
             <Button asChild className="rounded-full" size="lg">
-              <Link href="/sign-in">Login</Link>
+              <Link href="/login">Login</Link>
             </Button>
           )}
         </div>
