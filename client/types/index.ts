@@ -76,7 +76,10 @@ export interface IEvent {
   description?: string;
   location?: string;
   createdAt: Date;
-  imageUrl: string;
+  image: {
+    public_id: string,
+    url: string,
+  },
   startDateTime: Date;
   endDateTime: Date;
   price: string;

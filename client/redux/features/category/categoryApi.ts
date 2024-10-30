@@ -15,10 +15,10 @@ export const categoriesApi = apiSlice.injectEndpoints({
       ],
     }),
     createCategory: builder.mutation({
-      query: (data) => ({
+      query: (name) => ({
         url: "create-category",
         method: "POST",
-        body: data,
+        body: name,
         credentials: "include" as const,
       }),
       invalidatesTags: [{ type: "Category", id: "LIST" }],

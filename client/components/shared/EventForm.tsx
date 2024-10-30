@@ -34,7 +34,7 @@ type EventFormProps = {
 };
 
 const EventForm = ({ userId, type, event, eventId }: EventFormProps) => {
-  const [uploadedImageUrl, setUploadedImageUrl] = useState<string | null>(null);
+  const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [createEvent, { isLoading: isCreating }] = useCreateEventMutation();
   const [updateEvent, { isLoading: isUpdating }] = useUpdateEventMutation();
 
@@ -57,7 +57,7 @@ const EventForm = ({ userId, type, event, eventId }: EventFormProps) => {
     if (type === "Create") {
       try {
         const newEvent = await createEvent({
-          event: { ...values, imageUrl: uploadedImageUrl },
+          event: { ...values, image: uploadedImage },
           userId,
           path: "/profile",
         });
@@ -80,7 +80,7 @@ const EventForm = ({ userId, type, event, eventId }: EventFormProps) => {
       try {
         const updatedEvent = await updateEvent({
           userId,
-          event: { ...values, imageUrl: uploadedImageUrl, _id: eventId },
+          event: { ...values, image: uploadedImage, _id: eventId },
           path: `/events/${eventId}`,
         });
 
@@ -101,8 +101,8 @@ const EventForm = ({ userId, type, event, eventId }: EventFormProps) => {
       const reader = new FileReader();
       reader.onloadend = () => {
         const result = reader.result as string;
-        form.setValue("imageUrl", result);
-        setUploadedImageUrl(result);
+        form.setValue("image", { url: result });
+        setUploadedImage(result);
       };
       reader.readAsDataURL(file);
     }
@@ -167,22 +167,22 @@ const EventForm = ({ userId, type, event, eventId }: EventFormProps) => {
           />
           <FormField
             control={form.control}
-            name="imageUrl"
+            name="image"
             render={({ field }) => (
               <FormItem className="w-full">
                 <FormControl className="h-72">
                   <div className="flex items-center justify-center">
-                    {uploadedImageUrl && (
+                    {uploadedImage && (
                       <div className="relative h-48 w-48">
                         <Image
-                          src={uploadedImageUrl}
+                          src={uploadedImage}
                           alt="Event Image"
                           fill
                           className="object-cover rounded-lg"
                         />
                       </div>
                     )}
-                    {!uploadedImageUrl && (
+                    {!uploadedImage && (
                       <label
                         htmlFor="imageUpload"
                         className="flex h-48 w-48 cursor-pointer items-center justify-center rounded-lg border-2 border-dashed border-gray-300 text-gray-400 hover:border-gray-400 hover:text-gray-500"
@@ -309,8 +309,8 @@ const EventForm = ({ userId, type, event, eventId }: EventFormProps) => {
                 <FormControl>
                   <div className="flex-center h-[54px] w-full overflow-hidden rounded-full bg-grey-50 px-4 py-2">
                     <Image
-                      src="/assets/icons/dollar.svg"
-                      alt="dollar"
+                      src="/assets/icons/naira.svg"
+                      alt="naira"
                       width={24}
                       height={24}
                       className="filter-grey"

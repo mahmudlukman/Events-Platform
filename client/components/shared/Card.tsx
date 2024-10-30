@@ -1,10 +1,10 @@
-import { IEvent, RootState } from "@/types";
-import { formatDateTime } from "@/lib/utils";
+import React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import React from "react";
-import DeleteConfirmation from "./DeleteConfirmation";
 import { useSelector } from "react-redux";
+import { formatDateTime } from "@/lib/utils";
+import DeleteConfirmation from "./DeleteConfirmation";
+import { IEvent, RootState } from "@/types";
 
 type CardProps = {
   event: IEvent;
@@ -14,17 +14,25 @@ type CardProps = {
 
 const Card = ({ event, hasOrderLink, hidePrice }: CardProps) => {
   const { user } = useSelector((state: RootState) => state.auth);
-
   const isEventCreator = user?._id === event.organizer._id.toString();
+
+  // Get image URL or fallback to default
+  const imageUrl = event.image?.url || "/assets/images/placeholder.png";
 
   return (
     <div className="group relative flex min-h-[380px] w-full max-w-[400px] flex-col overflow-hidden rounded-xl bg-white shadow-md transition-all hover:shadow-lg md:min-h-[438px]">
       <Link
         href={`/events/${event._id}`}
-        style={{ backgroundImage: `url(${event.imageUrl})` }}
-        className="flex-center flex-grow bg-gray-50 bg-cover bg-center text-grey-500"
-      />
-      {/* IS EVENT CREATOR ... */}
+        className="relative flex-center flex-grow bg-gray-50"
+      >
+        <Image
+          src={imageUrl}
+          alt={event.title}
+          fill
+          className="object-cover"
+          priority
+        />
+      </Link>
 
       {isEventCreator && !hidePrice && (
         <div className="absolute right-2 top-2 flex flex-col gap-4 rounded-xl bg-white p-3 shadow-sm transition-all">
@@ -45,7 +53,7 @@ const Card = ({ event, hasOrderLink, hidePrice }: CardProps) => {
         {!hidePrice && (
           <div className="flex gap-2">
             <span className="p-semibold-14 w-min rounded-full bg-green-100 px-4 py-1 text-green-60">
-              {event.isFree ? "FREE" : ` ₦${event.price}`}
+              {event.isFree ? "FREE" : `₦${event.price}`}
             </span>
             <p className="p-semibold-14 w-min rounded-full bg-grey-500/10 px-4 py-1 text-grey-500 line-clamp-1">
               {event.category.name}

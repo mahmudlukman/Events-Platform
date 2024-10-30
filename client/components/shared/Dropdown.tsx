@@ -42,14 +42,12 @@ const Dropdown = ({ value, onChangeHandler }: DropdownProps) => {
   const [createCategory, { isLoading: isCreating }] =
     useCreateCategoryMutation();
 
-    console.log(categories)
-
   const handleAddCategory = async () => {
     if (!newCategory.trim()) return;
 
     try {
       await createCategory({
-        categoryName: newCategory.trim(),
+        name: newCategory.trim(),
       }).unwrap();
 
       // Reset the input
