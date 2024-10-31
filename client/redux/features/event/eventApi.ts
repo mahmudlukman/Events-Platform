@@ -37,6 +37,10 @@ export const eventsApi = apiSlice.injectEndpoints({
         method: "GET",
         credentials: "include" as const,
       }),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      transformResponse: (response: any) => {
+        return response.event || response;
+      },
       providesTags: (result, error, id) => [{ type: "Event", id }],
     }),
     getEventsByUser: builder.query({

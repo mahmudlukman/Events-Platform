@@ -17,7 +17,7 @@ const Card = ({ event, hasOrderLink, hidePrice }: CardProps) => {
   const isEventCreator = user?._id === event.organizer._id.toString();
 
   // Get image URL or fallback to default
-  const imageUrl = event.image?.url || "/assets/images/placeholder.png";
+  const image = event.image?.url || "/assets/images/placeholder.png";
 
   return (
     <div className="group relative flex min-h-[380px] w-full max-w-[400px] flex-col overflow-hidden rounded-xl bg-white shadow-md transition-all hover:shadow-lg md:min-h-[438px]">
@@ -26,7 +26,7 @@ const Card = ({ event, hasOrderLink, hidePrice }: CardProps) => {
         className="relative flex-center flex-grow bg-gray-50"
       >
         <Image
-          src={imageUrl}
+          src={image}
           alt={event.title}
           fill
           className="object-cover"

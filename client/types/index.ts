@@ -53,8 +53,8 @@ export type RemoveUrlQueryParams = {
 };
 
 export type SearchParamProps = {
-  params: { id: string };
-  searchParams: { [key: string]: string | string[] | undefined };
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 };
 
 interface User {
@@ -77,9 +77,9 @@ export interface IEvent {
   location?: string;
   createdAt: Date;
   image: {
-    public_id: string,
-    url: string,
-  },
+    public_id: string;
+    url: string;
+  };
   startDateTime: Date;
   endDateTime: Date;
   price: string;
