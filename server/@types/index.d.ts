@@ -1,7 +1,6 @@
 // ====== USER PARAMS
 export type CreateUserParams = {
-  firstName: string;
-  lastName: string;
+  name: string;
   username: string;
   email: string;
   password: string;
@@ -9,8 +8,7 @@ export type CreateUserParams = {
 };
 
 export type UpdateUserParams = {
-  firstName: string;
-  lastName: string;
+  name: string;
   username: string;
   avatar?: string;
 };
@@ -99,8 +97,7 @@ export type Event = {
   url: string;
   organizer: {
     _id: string;
-    firstName: string;
-    lastName: string;
+    name: string;
   };
   category: {
     _id: string;

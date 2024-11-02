@@ -128,7 +128,7 @@ const EventDetails = ({ params, searchParams }: SearchParamProps) => {
                 {eventData.description}
               </p>
               {eventData.url && (
-                <p className="p-medium-16 lg:p-regular-18 truncate text-primary-500 underline">
+                <p className="p-medium-16 lg:p-regular-18 truncate text-primary-500 underline cursor-pointer">
                   {eventData.url}
                 </p>
               )}
@@ -142,13 +142,13 @@ const EventDetails = ({ params, searchParams }: SearchParamProps) => {
         <h2 className="h2-bold">Related Events</h2>
 
         <Collection
-          data={relatedEventsData?.events} // Updated to match API response
+          data={relatedEventsData?.events}
           emptyTitle="No Events Found"
           emptyStateSubtext="Come back later"
           collectionType="All_Events"
           limit={3}
           page={resolvedSearchParams.page?.toString() || "1"}
-          totalPages={Math.ceil((relatedEventsData?.totalEvents || 0) / 3)} // Calculate total pages
+          totalPages={Math.ceil((relatedEventsData?.totalEvents || 0) / 3)}
         />
       </section>
     </>

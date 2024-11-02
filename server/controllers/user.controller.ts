@@ -41,7 +41,7 @@ export const getUserById = catchAsyncError(
 export const updateUser = catchAsyncError(
     async (req: Request, res: Response, next: NextFunction) => {
       try {
-        const { firstName, lastName, username, avatar }: UpdateUserParams =
+        const { name, username, avatar }: UpdateUserParams =
           req.body;
         const userId = req.user?._id;
         const user = await User.findById(userId);
@@ -50,8 +50,7 @@ export const updateUser = catchAsyncError(
           return next(new ErrorHandler('User not found', 400));
         }
   
-        if (firstName) user.firstName = firstName;
-        if (lastName) user.lastName = lastName;
+        if (name) user.name = name;
         if (username) user.username = username;
   
         if (avatar && avatar !== user.avatar?.url) {

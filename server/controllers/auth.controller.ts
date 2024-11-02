@@ -10,25 +10,20 @@ import { CreateUserParams } from "../@types";
 export const createUser = catchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const {
-        firstName,
-        lastName,
-        email,
-        password,
-      }: CreateUserParams = req.body;
+      const { name, email, password }: CreateUserParams =
+        req.body;
 
       const isEmailExist = await User.findOne({ email });
       if (isEmailExist) {
         return next(new ErrorHandler("Email already exist", 400));
       }
 
-      const userNameWithoutSpace = firstName.replace(/\s/g, "");
+      const userNameWithoutSpace = name.replace(/\s/g, "");
 
       const uniqueNumber = Math.floor(Math.random() * 1000);
 
       const user: IUser = await User.create({
-        firstName,
-        lastName,
+        name,
         email,
         password,
         username: `${userNameWithoutSpace}${uniqueNumber}`,
@@ -44,7 +39,6 @@ export const createUser = catchAsyncError(
     }
   }
 );
-
 
 export const loginUser = catchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
