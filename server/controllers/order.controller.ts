@@ -29,7 +29,7 @@ export const initializePayment = catchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { eventId, amount } = req.body as InitiatePaymentParams;
-      
+
       const event = await Event.findById(eventId);
       if (!event) {
         return next(new ErrorHandler("Event not found", 404));
@@ -66,7 +66,7 @@ export const initializePayment = catchAsyncError(
           redirect_url: `${process.env.ORIGIN}/payment/callback`,
           customer: {
             email: user.email,
-            name: `${user.firstName} ${user.lastName}`,
+            name: user.name,
           },
           customizations: {
             title: `${event.title} Ticket Purchase`,
@@ -107,13 +107,14 @@ export const initializePayment = catchAsyncError(
 export const verifyPayment = catchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { status, tx_ref, transaction_id } = req.query as unknown as PaymentVerificationParams;
+      const { status, tx_ref, transaction_id } =
+        req.query as unknown as PaymentVerificationParams;
 
       if (status === "successful") {
         const transactionDetails = await flw.Transaction.find({
           id: transaction_id,
         });
-        
+
         const response = await flw.Transaction.verify({ id: transaction_id });
 
         if (
@@ -162,22 +163,22 @@ export const getOrdersByEvent = catchAsyncError(
             from: "users",
             localField: "buyer",
             foreignField: "_id",
-            as: "buyer"
-          }
+            as: "buyer",
+          },
         },
         {
-          $unwind: "$buyer"
+          $unwind: "$buyer",
         },
         {
           $lookup: {
             from: "events",
             localField: "event",
             foreignField: "_id",
-            as: "event"
-          }
+            as: "event",
+          },
         },
         {
-          $unwind: "$event"
+          $unwind: "$event",
         },
         {
           $project: {
@@ -188,23 +189,23 @@ export const getOrdersByEvent = catchAsyncError(
             eventTitle: "$event.title",
             eventId: "$event._id",
             buyer: {
-              $concat: ["$buyer.firstName", " ", "$buyer.lastName"]
-            }
-          }
+              $concat: ["$buyer.firstName", " ", "$buyer.lastName"],
+            },
+          },
         },
         {
           $match: {
             $and: [
               { eventId: new Object(eventId) },
-              { buyer: { $regex: searchString, $options: "i" } }
-            ]
-          }
-        }
+              { buyer: { $regex: searchString, $options: "i" } },
+            ],
+          },
+        },
       ]);
 
       res.status(200).json({
         success: true,
-        orders
+        orders,
       });
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 400));
@@ -218,7 +219,7 @@ export const getOrdersByUser = catchAsyncError(
     try {
       const { page = 1, limit = 10 } = req.query;
       const userId = req.user?._id;
-      
+
       if (!userId) {
         return next(new ErrorHandler("User ID is required", 400));
       }
@@ -243,7 +244,7 @@ export const getOrdersByUser = catchAsyncError(
       res.status(200).json({
         success: true,
         orders: JSON.parse(JSON.stringify(orders)),
-        totalPages: Math.ceil(totalOrders / Number(limit))
+        totalPages: Math.ceil(totalOrders / Number(limit)),
       });
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 400));

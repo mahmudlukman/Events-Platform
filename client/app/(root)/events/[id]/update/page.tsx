@@ -18,10 +18,6 @@ const UpdateEvent = ({ params }: UpdateEventProps) => {
   const userId = user?._id as string;
   const { data: event } = useGetEventByIdQuery({ id });
 
-  console.log("event", event);
-  console.log("eventId", event?._id);
-  console.log("userId", userId);
-
   return (
     <>
       <section className="bg-primary-50 bg-dotted-pattern bg-cover bg-center py-5 md:py-10">
