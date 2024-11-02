@@ -79,6 +79,7 @@ export interface IEvent {
   startDateTime: Date;
   endDateTime: Date;
   price: string;
+  categoryId: string;
   isFree: boolean;
   url?: string;
   category: { _id: string; name: string };

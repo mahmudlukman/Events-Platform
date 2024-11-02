@@ -14,7 +14,7 @@ import * as z from "zod";
 import { eventDefaultValues } from "@/constants";
 import Dropdown from "./Dropdown";
 import { Textarea } from "@/components/ui/textarea";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -38,20 +38,40 @@ const EventForm = ({ userId, type, event, eventId }: EventFormProps) => {
   const [createEvent, { isLoading: isCreating }] = useCreateEventMutation();
   const [updateEvent, { isLoading: isUpdating }] = useUpdateEventMutation();
 
-  const initialValues =
-    event && type === "Update"
-      ? {
-          ...event,
-          startDateTime: new Date(event.startDateTime),
-          endDateTime: new Date(event.endDateTime),
-        }
-      : eventDefaultValues;
-  const router = useRouter();
-
   const form = useForm<z.infer<typeof eventFormSchema>>({
     resolver: zodResolver(eventFormSchema),
-    defaultValues: initialValues,
+    defaultValues: eventDefaultValues,
   });
+
+  // Use useEffect to update form values when event data is available
+  useEffect(() => {
+    if (event && type === "Update") {
+      // Set the uploaded image if it exists
+      if (event.image?.url) {
+        setUploadedImage(event.image.url);
+      }
+
+      // Reset form with event data
+      form.reset({
+        title: event.title || '',
+        description: event.description || '',
+        location: event.location || '',
+        image: event.image || undefined,
+        startDateTime: new Date(event.startDateTime),
+        endDateTime: new Date(event.endDateTime),
+        categoryId: event.category._id || '',
+        price: event.price || '',
+        isFree: event.isFree || false,
+        url: event.url || '',
+      });
+    }
+  }, [event, type, form]);
+  const router = useRouter();
+
+  // const form = useForm<z.infer<typeof eventFormSchema>>({
+  //   resolver: zodResolver(eventFormSchema),
+  //   defaultValues: initialValues,
+  // });
 
   async function onSubmit(values: z.infer<typeof eventFormSchema>) {
     if (type === "Create") {
