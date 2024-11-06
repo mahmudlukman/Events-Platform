@@ -53,16 +53,16 @@ const EventForm = ({ userId, type, event, eventId }: EventFormProps) => {
 
       // Reset form with event data
       form.reset({
-        title: event.title || '',
-        description: event.description || '',
-        location: event.location || '',
+        title: event.title || "",
+        description: event.description || "",
+        location: event.location || "",
         image: event.image || undefined,
         startDateTime: new Date(event.startDateTime),
         endDateTime: new Date(event.endDateTime),
-        categoryId: event.category._id || '',
-        price: event.price || '',
+        categoryId: event.category._id || "",
+        price: event.price || "",
         isFree: event.isFree || false,
-        url: event.url || '',
+        url: event.url || "",
       });
     }
   }, [event, type, form]);

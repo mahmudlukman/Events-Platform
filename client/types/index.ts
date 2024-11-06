@@ -85,3 +85,12 @@ export interface IEvent {
   category: { _id: string; name: string };
   organizer: { _id: string; name: string };
 }
+
+export type IOrderItem = {
+  _id: string
+  totalAmount: string
+  createdAt: Date
+  eventTitle: string
+  eventId: string
+  buyer: string
+}

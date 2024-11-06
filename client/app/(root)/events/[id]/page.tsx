@@ -59,7 +59,7 @@ const EventDetails = ({ params, searchParams }: SearchParamProps) => {
         <div className="grid grid-cols-1 md:grid-cols-2 2xl:max-w-7xl">
           <Image
             src={image}
-            alt={`${eventData.title} image`} // Improved alt text
+            alt={`${eventData.title} image`}
             width={1000}
             height={1000}
             className="h-full min-h-[300px] object-cover object-center"

@@ -1,9 +1,45 @@
 import { apiSlice } from "../api/apiSlice";
 import { getOrdersFromResult } from "../../helper";
 
+interface InitializePaymentRequest {
+  eventId: string;
+  amount: number;
+}
+
+interface InitializePaymentResponse {
+  success: boolean;
+  paymentUrl?: string;
+  message?: string;
+  order?: {
+    _id: string;
+    paymentId: string;
+    totalAmount: string;
+    event: string;
+    buyer: string;
+  };
+}
+
+interface VerifyPaymentRequest {
+  status: string;
+  tx_ref: string;
+  transaction_id: string;
+}
+
+interface VerifyPaymentResponse {
+  success: boolean;
+  order?: {
+    _id: string;
+    paymentId: string;
+    totalAmount: string;
+    event: string;
+    buyer: string;
+  };
+}
+
+
 export const orderApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
-    initializePayment: builder.mutation({
+    initializePayment: builder.mutation<InitializePaymentResponse, InitializePaymentRequest>({
       query: ({ eventId, amount }) => ({
         url: "initialize",
         method: "POST",
@@ -11,11 +47,11 @@ export const orderApi = apiSlice.injectEndpoints({
           eventId,
           amount,
         },
-        credentials: "include" as const,
+        credentials: "include",
       }),
       invalidatesTags: [{ type: "Order", id: "LIST" }],
     }),
-    verifyPayment: builder.query({
+    verifyPayment: builder.query<VerifyPaymentResponse, VerifyPaymentRequest>({
       query: ({ status, tx_ref, transaction_id }) => ({
         url: "verify-payment",
         method: "GET",
@@ -24,10 +60,10 @@ export const orderApi = apiSlice.injectEndpoints({
           tx_ref,
           transaction_id,
         },
-        credentials: "include" as const,
+        credentials: "include",
       }),
       providesTags: (result) => [
-        ...getOrdersFromResult(result),
+        { type: "Order", id: result?.order?._id },
         { type: "Order", id: "LIST" },
       ],
     }),

@@ -16,7 +16,6 @@ const Card = ({ event, hasOrderLink, hidePrice }: CardProps) => {
   const { user } = useSelector((state: RootState) => state.auth);
   const isEventCreator = user?._id === event.organizer._id.toString();
 
-  // Get image URL or fallback to default
   const image = event.image?.url || "/assets/images/placeholder.png";
 
   return (
