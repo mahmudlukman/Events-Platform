@@ -59,7 +59,10 @@ export type SearchParamProps = {
 
 interface User {
   _id: string;
-  avatar?: { url: string };
+  avatar?: {
+    public_id: string;
+    url: string;
+  } | null;
   image?: string;
   name?: string;
 }
@@ -75,7 +78,10 @@ export interface IEvent {
   title: string;
   description?: string;
   location?: string;
-  image?: { url: string };
+  image?: {
+    public_id: string;
+    url: string;
+  };
   startDateTime: Date;
   endDateTime: Date;
   price: string;
@@ -87,10 +93,10 @@ export interface IEvent {
 }
 
 export type IOrderItem = {
-  _id: string
-  totalAmount: string
-  createdAt: Date
-  eventTitle: string
-  eventId: string
-  buyer: string
-}
+  _id: string;
+  totalAmount: string;
+  createdAt: Date;
+  eventTitle: string;
+  eventId: string;
+  buyer: string;
+};

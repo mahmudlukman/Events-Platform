@@ -25,6 +25,7 @@ import {
   useUpdateEventMutation,
 } from "@/redux/features/event/eventApi";
 import { IEvent } from "@/types/index";
+import { Pen } from "lucide-react";
 
 type EventFormProps = {
   userId: string;
@@ -35,6 +36,7 @@ type EventFormProps = {
 
 const EventForm = ({ userId, type, event, eventId }: EventFormProps) => {
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
+  const [isImageEditing, setIsImageEditing] = useState(false);
   const [createEvent, { isLoading: isCreating }] = useCreateEventMutation();
   const [updateEvent, { isLoading: isUpdating }] = useUpdateEventMutation();
 
@@ -43,15 +45,12 @@ const EventForm = ({ userId, type, event, eventId }: EventFormProps) => {
     defaultValues: eventDefaultValues,
   });
 
-  // Use useEffect to update form values when event data is available
   useEffect(() => {
     if (event && type === "Update") {
-      // Set the uploaded image if it exists
       if (event.image?.url) {
         setUploadedImage(event.image.url);
       }
 
-      // Reset form with event data
       form.reset({
         title: event.title || "",
         description: event.description || "",
@@ -66,12 +65,8 @@ const EventForm = ({ userId, type, event, eventId }: EventFormProps) => {
       });
     }
   }, [event, type, form]);
-  const router = useRouter();
 
-  // const form = useForm<z.infer<typeof eventFormSchema>>({
-  //   resolver: zodResolver(eventFormSchema),
-  //   defaultValues: initialValues,
-  // });
+  const router = useRouter();
 
   async function onSubmit(values: z.infer<typeof eventFormSchema>) {
     if (type === "Create") {
@@ -98,9 +93,16 @@ const EventForm = ({ userId, type, event, eventId }: EventFormProps) => {
       }
 
       try {
+        // Only include image in update if it was actually changed
+        const updateData = {
+          ...values,
+          image: isImageEditing ? uploadedImage : event?.image,
+          _id: eventId,
+        };
+
         const updatedEvent = await updateEvent({
           userId,
-          event: { ...values, image: uploadedImage, _id: eventId },
+          event: updateData,
           path: `/events/${eventId}`,
         });
 
@@ -123,6 +125,7 @@ const EventForm = ({ userId, type, event, eventId }: EventFormProps) => {
         const result = reader.result as string;
         form.setValue("image", { url: result });
         setUploadedImage(result);
+        setIsImageEditing(true);
       };
       reader.readAsDataURL(file);
     }
@@ -188,21 +191,34 @@ const EventForm = ({ userId, type, event, eventId }: EventFormProps) => {
           <FormField
             control={form.control}
             name="image"
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
             render={({ field }) => (
               <FormItem className="w-full">
                 <FormControl className="h-72">
                   <div className="flex items-center justify-center">
-                    {uploadedImage && (
-                      <div className="relative h-48 w-48">
+                    {uploadedImage ? (
+                      <div className="relative h-48 w-48 group">
                         <Image
                           src={uploadedImage}
                           alt="Event Image"
                           fill
                           className="object-cover rounded-lg"
                         />
+                        <label
+                          htmlFor="imageUpload"
+                          className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg cursor-pointer"
+                        >
+                          <Pen className="h-6 w-6 text-white" />
+                          <input
+                            id="imageUpload"
+                            type="file"
+                            accept="image/*"
+                            className="sr-only"
+                            onChange={handleImageChange}
+                          />
+                        </label>
                       </div>
-                    )}
-                    {!uploadedImage && (
+                    ) : (
                       <label
                         htmlFor="imageUpload"
                         className="flex h-48 w-48 cursor-pointer items-center justify-center rounded-lg border-2 border-dashed border-gray-300 text-gray-400 hover:border-gray-400 hover:text-gray-500"
@@ -213,7 +229,6 @@ const EventForm = ({ userId, type, event, eventId }: EventFormProps) => {
                           type="file"
                           accept="image/*"
                           className="sr-only"
-                          {...field}
                           onChange={handleImageChange}
                         />
                       </label>

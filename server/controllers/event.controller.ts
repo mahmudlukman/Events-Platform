@@ -3,10 +3,13 @@ import { catchAsyncError } from "../middleware/catchAsyncError";
 import ErrorHandler from "../utils/errorHandler";
 import Category from "../models/category.model";
 import User from "../models/user.model";
-import { CreateEventParams, GetAllEventsParams, UpdateEventParams } from "../@types";
+import {
+  CreateEventParams,
+  GetAllEventsParams,
+  UpdateEventParams,
+} from "../@types";
 import Event from "../models/event.model";
 import cloudinary from "cloudinary";
-
 
 export const findCategoryByName = async (name: string) => {
   const category = await Category.findOne({
@@ -111,6 +114,93 @@ export const getEventById = catchAsyncError(
 );
 
 // UPDATE
+// export const updateEvent = catchAsyncError(
+//   async (req: Request, res: Response, next: NextFunction) => {
+//     try {
+//       const userId = req.user?._id;
+//       const { event } = req.body;
+//       const image = event.image;
+
+//       const eventToUpdate = await Event.findById(event._id);
+
+//       if (!eventToUpdate) {
+//         return next(new ErrorHandler("Event not found", 401));
+//       }
+
+//       const organizerId = eventToUpdate.organizer.toString();
+//       const requestUserId = userId.toString();
+
+//       if (organizerId !== requestUserId) {
+//         return next(
+//           new ErrorHandler("Unauthorized: You are not the event organizer", 403)
+//         );
+//       }
+
+//       // if (image && image.startsWith("https")) {
+//       //   await cloudinary.v2.uploader.destroy(eventToUpdate.image.public_id);
+//       //   const myCloud = await cloudinary.v2.uploader.upload(image, {
+//       //     folder: "event",
+//       //   });
+//       //   event.image = {
+//       //     public_id: myCloud.public_id,
+//       //     url: myCloud.secure_url,
+//       //   };
+//       // }
+//       // if (image.startsWith("https")) {
+//       //   event.image = {
+//       //     public_id: eventToUpdate?.image.public_id,
+//       //     url: eventToUpdate?.image.url,
+//       //   };
+//       // }
+
+//       // Handle image update
+//       if (image) {
+//         // If image is a base64 string (new image upload)
+//         if (typeof image === 'string' && image.startsWith('data:image')) {
+//           // Delete old image if exists
+//           if (eventToUpdate.image?.public_id) {
+//             await cloudinary.v2.uploader.destroy(eventToUpdate.image.public_id);
+//           }
+//           // Upload new image
+//           const myCloud = await cloudinary.v2.uploader.upload(image, {
+//             folder: "event",
+//           });
+//           event.image = {
+//             public_id: myCloud.public_id,
+//             url: myCloud.secure_url,
+//           };
+//         } else if (typeof image === 'object' && image.url) {
+//           // If image is unchanged, keep existing image data
+//           event.image = eventToUpdate.image;
+//         }
+//       }
+
+//       const updateData = {
+//         ...event,
+//         category: event.categoryId,
+//         // Preserve the original organizer
+//         organizer: eventToUpdate.organizer,
+//       };
+
+//       const updatedEvent = await Event.findByIdAndUpdate(
+//         event._id,
+//         updateData,
+//         { new: true }
+//       ).populate("category");
+
+//       if (!updatedEvent) {
+//         return next(new ErrorHandler("Failed to update event", 500));
+//       }
+
+//       res.status(200).json({
+//         success: true,
+//         event: updatedEvent,
+//       });
+//     } catch (error: any) {
+//       return next(new ErrorHandler(error.message, 400));
+//     }
+//   }
+// );
 export const updateEvent = catchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -133,29 +223,41 @@ export const updateEvent = catchAsyncError(
         );
       }
 
-      if (image && image.startsWith("https")) {
-        await cloudinary.v2.uploader.destroy(eventToUpdate.image.public_id);
+      // Create update data object with only the fields that are present
+      const updateData: any = {
+        category: event.categoryId,
+        organizer: eventToUpdate.organizer, // Preserve the original organizer
+      };
+
+      // Only add fields that are present in the request
+      if (event.title) updateData.title = event.title;
+      if (event.description) updateData.description = event.description;
+      if (event.location) updateData.location = event.location;
+      if (event.startDateTime) updateData.startDateTime = event.startDateTime;
+      if (event.endDateTime) updateData.endDateTime = event.endDateTime;
+      if (typeof event.price !== "undefined") updateData.price = event.price;
+      if (typeof event.isFree !== "undefined") updateData.isFree = event.isFree;
+      if (event.url) updateData.url = event.url;
+
+      // Handle image update only if a new image is provided
+      if (
+        image &&
+        typeof image === "string" &&
+        image.startsWith("data:image")
+      ) {
+        // Delete old image if exists
+        if (eventToUpdate.image?.public_id) {
+          await cloudinary.v2.uploader.destroy(eventToUpdate.image.public_id);
+        }
+        // Upload new image
         const myCloud = await cloudinary.v2.uploader.upload(image, {
-          folder: "courses",
+          folder: "event",
         });
-        event.image = {
+        updateData.image = {
           public_id: myCloud.public_id,
           url: myCloud.secure_url,
         };
       }
-      if (image.startsWith("https")) {
-        event.image = {
-          public_id: eventToUpdate?.image.public_id,
-          url: eventToUpdate?.image.url,
-        };
-      }
-
-      const updateData = {
-        ...event,
-        category: event.categoryId,
-        // Preserve the original organizer
-        organizer: eventToUpdate.organizer,
-      };
 
       const updatedEvent = await Event.findByIdAndUpdate(
         event._id,
@@ -201,7 +303,6 @@ export const deleteEvent = catchAsyncError(
   }
 );
 
-
 // GET ALL EVENTS
 export const getAllEvents = catchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -210,9 +311,9 @@ export const getAllEvents = catchAsyncError(
       const {
         query,
         category,
-        page = '1',
-        pageSize = '10',
-        sortBy = 'recent'
+        page = "1",
+        pageSize = "10",
+        sortBy = "recent",
       } = req.query as GetAllEventsParams;
 
       const skipAmount = (Number(page) - 1) * Number(pageSize);
@@ -237,7 +338,7 @@ export const getAllEvents = catchAsyncError(
         : {};
 
       let categoryCondition = null;
-      if (category && typeof category === 'string') {
+      if (category && typeof category === "string") {
         categoryCondition = await findCategoryByName(category);
       }
 

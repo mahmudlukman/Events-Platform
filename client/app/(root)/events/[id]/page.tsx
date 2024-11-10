@@ -1,5 +1,6 @@
 "use client";
 
+import CheckoutButton from "@/components/shared/CheckoutButton";
 import {
   useGetEventByIdQuery,
   useGetRelatedEventsByCategoryQuery,
@@ -72,7 +73,7 @@ const EventDetails = ({ params, searchParams }: SearchParamProps) => {
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
                 <div className="flex gap-3">
                   <p className="p-bold-20 rounded-full bg-green-500/10 px-5 py-2 text-green-700">
-                    {eventData.isFree ? "FREE" : `$${eventData.price}`}
+                    {eventData.isFree ? "FREE" : `₦${eventData.price}`}
                   </p>
                   <p className="p-medium-16 rounded-full bg-grey-500/10 px-4 py-2.5 text-grey-500">
                     {eventData.category.name}
@@ -82,12 +83,14 @@ const EventDetails = ({ params, searchParams }: SearchParamProps) => {
                 <p className="p-medium-18 ml-2 mt-2 sm:mt-0">
                   by{" "}
                   <span className="text-primary-500">
-                    {eventData.organizer.firstName}{" "}
-                    {eventData.organizer.lastName}
+                    {eventData.organizer.firsName}{" "}
+                    {/* {eventData.organizer.lastName} */}
                   </span>
                 </p>
               </div>
             </div>
+
+            <CheckoutButton event={event} />
 
             <div className="flex flex-col gap-5">
               <div className="flex gap-2 md:gap-3">
