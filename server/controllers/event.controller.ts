@@ -6,6 +6,8 @@ import User from "../models/user.model";
 import {
   CreateEventParams,
   GetAllEventsParams,
+  GetEventsByUserParams,
+  GetRelatedEventsByCategoryParams,
   UpdateEventParams,
 } from "../@types";
 import Event from "../models/event.model";
@@ -219,30 +221,14 @@ export const deleteEvent = catchAsyncError(
 export const getAllEvents = catchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      // Type cast query parameters with default values
       const {
         query,
+        limit = 6,
+        page,
         category,
-        page = "1",
-        pageSize = "10",
-        sortBy = "recent",
-      } = req.query as GetAllEventsParams;
+      } = req.query as unknown as GetAllEventsParams;
 
-      const skipAmount = (Number(page) - 1) * Number(pageSize);
-
-      // Sorting options
-      let sortOptions: Record<string, 1 | -1> = {};
-      switch (sortBy) {
-        case "recent":
-          sortOptions = { createdAt: -1 };
-          break;
-        case "oldest":
-          sortOptions = { createdAt: 1 };
-          break;
-        default:
-          sortOptions = { createdAt: -1 };
-          break;
-      }
+      const skipAmount = (Number(page) - 1) * limit;
 
       // Build query conditions
       const titleCondition = query
@@ -261,20 +247,18 @@ export const getAllEvents = catchAsyncError(
         ],
       };
 
-      const events = await populateEvent(
-        Event.find(conditions)
-          .sort(sortOptions)
-          .skip(skipAmount)
-          .limit(Number(pageSize))
-      );
+      const eventsQuery = Event.find(conditions)
+        .sort({ createdAt: "desc" })
+        .skip(skipAmount)
+        .limit(limit);
 
-      const totalEvents = await Event.countDocuments(conditions);
-      const isNext = totalEvents > skipAmount + events.length;
+      const events = await populateEvent(eventsQuery);
+      const eventsCount = await Event.countDocuments(conditions);
 
       res.status(200).json({
         success: true,
         events,
-        isNext,
+        totalPages: Math.ceil(eventsCount / limit),
       });
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 400));
@@ -285,39 +269,27 @@ export const getAllEvents = catchAsyncError(
 export const getEventsByUser = catchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { userId, page = 1, pageSize = 10, sortBy = "recent" } = req.query;
-
-      const skipAmount = (Number(page) - 1) * Number(pageSize);
-
-      let sortOptions = {};
-      switch (sortBy) {
-        case "recent":
-          sortOptions = { createdAt: -1 };
-          break;
-        case "oldest":
-          sortOptions = { createdAt: 1 };
-          break;
-        default:
-          sortOptions = { createdAt: -1 };
-          break;
-      }
+      const {
+        userId,
+        limit = 6,
+        page,
+      } = req.query as unknown as GetEventsByUserParams;
 
       const conditions = { organizer: userId };
+      const skipAmount = (page - 1) * limit;
 
-      const events = await populateEvent(
-        Event.find(conditions)
-          .sort(sortOptions)
-          .skip(skipAmount)
-          .limit(Number(pageSize))
-      );
+      const eventsQuery = Event.find(conditions)
+        .sort({ createdAt: "desc" })
+        .skip(skipAmount)
+        .limit(+limit);
 
-      const totalEvents = await Event.countDocuments(conditions);
-      const isNext = totalEvents > skipAmount + events.length;
+      const events = await populateEvent(eventsQuery);
+      const eventsCount = await Event.countDocuments(conditions);
 
       res.status(200).json({
         success: true,
         events,
-        isNext,
+        totalPages: Math.ceil(eventsCount / +limit),
       });
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 400));
@@ -333,43 +305,26 @@ export const getRelatedEventsByCategory = catchAsyncError(
         categoryId,
         eventId,
         page = 1,
-        pageSize = 10,
-        sortBy = "recent",
-      } = req.query;
+        limit = 3,
+      } = req.query as unknown as GetRelatedEventsByCategoryParams;
 
-      const skipAmount = (Number(page) - 1) * Number(pageSize);
-
-      let sortOptions = {};
-      switch (sortBy) {
-        case "recent":
-          sortOptions = { createdAt: -1 };
-          break;
-        case "oldest":
-          sortOptions = { createdAt: 1 };
-          break;
-        default:
-          sortOptions = { createdAt: -1 };
-          break;
-      }
-
+      const skipAmount = (Number(page) - 1) * limit;
       const conditions = {
         $and: [{ category: categoryId }, { _id: { $ne: eventId } }],
       };
 
-      const events = await populateEvent(
-        Event.find(conditions)
-          .sort(sortOptions)
-          .skip(skipAmount)
-          .limit(Number(pageSize))
-      );
+      const eventsQuery = Event.find(conditions)
+        .sort({ createdAt: "desc" })
+        .skip(skipAmount)
+        .limit(limit);
 
-      const totalEvents = await Event.countDocuments(conditions);
-      const isNext = totalEvents > skipAmount + events.length;
+      const events = await populateEvent(eventsQuery);
+      const eventsCount = await Event.countDocuments(conditions);
 
       res.status(200).json({
         success: true,
         events,
-        isNext,
+        totalPages: Math.ceil(eventsCount / +limit),
       });
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 400));

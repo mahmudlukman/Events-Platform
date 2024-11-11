@@ -57,28 +57,24 @@ export type DeleteEventParams = {
   eventId: string;
 };
 
-// Update your existing types
 export type GetAllEventsParams = {
-  query?: string;
-  category?: string;
-  page?: string | number;
-  pageSize?: string | number;
-  sortBy?: 'recent' | 'oldest';
+  query: string
+  category: string
+  limit: number
+  page: number
 };
 
 export type GetEventsByUserParams = {
-  userId: string;
-  page?: number;
-  pageSize?: number;
-  sortBy?: "recent" | "oldest" | string;
+  userId: string
+  limit?: number
+  page: number
 };
 
 export type GetRelatedEventsByCategoryParams = {
-  categoryId: string;
-  eventId: string;
-  page?: number;
-  pageSize?: number;
-  sortBy?: "recent" | "oldest" | string;
+  categoryId: string
+  eventId: string
+  limit?: number
+  page: number | string
 };
 
 export type Event = {
