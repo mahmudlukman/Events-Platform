@@ -7,7 +7,11 @@ import Checkout from "./Checkout";
 import { IEvent, RootState } from "@/types";
 import { useSelector } from "react-redux";
 
-const CheckoutButton = ({ event }: { event: IEvent }) => {
+interface CheckoutButtonProps {
+  event: IEvent;
+}
+
+const CheckoutButton: React.FC<CheckoutButtonProps> = ({ event }) => {
   const { user } = useSelector((state: RootState) => state.auth);
   const hasEventFinished = new Date(event.endDateTime) < new Date();
 
@@ -19,13 +23,13 @@ const CheckoutButton = ({ event }: { event: IEvent }) => {
         </p>
       ) : (
         <>
-          {!user && (
+          {!user ? (
             <Button asChild className="button rounded-full" size="lg">
-              <Link href="/sign-in">Get Tickets</Link>
+              <Link href="/login">Get Tickets</Link>
             </Button>
+          ) : (
+            <Checkout event={event} userId={user._id} />
           )}
-
-          {user && <Checkout event={event} userId={user?._id} />}
         </>
       )}
     </div>

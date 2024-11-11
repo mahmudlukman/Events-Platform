@@ -1,9 +1,7 @@
-import React from "react";
+import { useState } from "react";
 import Image from "next/image";
 import { Loader2 } from "lucide-react";
-import { toast } from "sonner"
-
-
+import { toast } from "sonner";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -29,7 +27,7 @@ const DeleteConfirmation = ({
   eventName = "this event",
   onDeleteSuccess,
 }: DeleteConfirmationProps) => {
-  const [isOpen, setIsOpen] = React.useState(false);
+  const [isOpen, setIsOpen] = useState(false);
   const [deleteEvent, { isLoading }] = useDeleteEventMutation();
 
   const handleDelete = async () => {
@@ -48,9 +46,9 @@ const DeleteConfirmation = ({
           ? err.message
           : "An unexpected error occurred while deleting the event.";
 
-          toast.error(errorMessage, {
-            duration: 5000,
-          });
+      toast.error(errorMessage, {
+        duration: 5000,
+      });
 
       console.error("Failed to delete event:", err);
     }

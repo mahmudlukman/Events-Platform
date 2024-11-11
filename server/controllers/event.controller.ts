@@ -44,7 +44,7 @@ const populateEvent = (query: any) => {
     .populate({
       path: "organizer",
       model: User,
-      select: "_id firstName lastName",
+      select: "_id name",
     })
     .populate({ path: "category", model: Category, select: "_id name" });
 };
@@ -113,94 +113,6 @@ export const getEventById = catchAsyncError(
   }
 );
 
-// UPDATE
-// export const updateEvent = catchAsyncError(
-//   async (req: Request, res: Response, next: NextFunction) => {
-//     try {
-//       const userId = req.user?._id;
-//       const { event } = req.body;
-//       const image = event.image;
-
-//       const eventToUpdate = await Event.findById(event._id);
-
-//       if (!eventToUpdate) {
-//         return next(new ErrorHandler("Event not found", 401));
-//       }
-
-//       const organizerId = eventToUpdate.organizer.toString();
-//       const requestUserId = userId.toString();
-
-//       if (organizerId !== requestUserId) {
-//         return next(
-//           new ErrorHandler("Unauthorized: You are not the event organizer", 403)
-//         );
-//       }
-
-//       // if (image && image.startsWith("https")) {
-//       //   await cloudinary.v2.uploader.destroy(eventToUpdate.image.public_id);
-//       //   const myCloud = await cloudinary.v2.uploader.upload(image, {
-//       //     folder: "event",
-//       //   });
-//       //   event.image = {
-//       //     public_id: myCloud.public_id,
-//       //     url: myCloud.secure_url,
-//       //   };
-//       // }
-//       // if (image.startsWith("https")) {
-//       //   event.image = {
-//       //     public_id: eventToUpdate?.image.public_id,
-//       //     url: eventToUpdate?.image.url,
-//       //   };
-//       // }
-
-//       // Handle image update
-//       if (image) {
-//         // If image is a base64 string (new image upload)
-//         if (typeof image === 'string' && image.startsWith('data:image')) {
-//           // Delete old image if exists
-//           if (eventToUpdate.image?.public_id) {
-//             await cloudinary.v2.uploader.destroy(eventToUpdate.image.public_id);
-//           }
-//           // Upload new image
-//           const myCloud = await cloudinary.v2.uploader.upload(image, {
-//             folder: "event",
-//           });
-//           event.image = {
-//             public_id: myCloud.public_id,
-//             url: myCloud.secure_url,
-//           };
-//         } else if (typeof image === 'object' && image.url) {
-//           // If image is unchanged, keep existing image data
-//           event.image = eventToUpdate.image;
-//         }
-//       }
-
-//       const updateData = {
-//         ...event,
-//         category: event.categoryId,
-//         // Preserve the original organizer
-//         organizer: eventToUpdate.organizer,
-//       };
-
-//       const updatedEvent = await Event.findByIdAndUpdate(
-//         event._id,
-//         updateData,
-//         { new: true }
-//       ).populate("category");
-
-//       if (!updatedEvent) {
-//         return next(new ErrorHandler("Failed to update event", 500));
-//       }
-
-//       res.status(200).json({
-//         success: true,
-//         event: updatedEvent,
-//       });
-//     } catch (error: any) {
-//       return next(new ErrorHandler(error.message, 400));
-//     }
-//   }
-// );
 export const updateEvent = catchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {

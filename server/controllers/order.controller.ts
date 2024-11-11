@@ -25,17 +25,134 @@ interface PaymentVerificationParams {
 }
 
 // INITIALIZE PAYMENT
+interface InitiatePaymentParams {
+  eventId: string;
+  amount: number;
+}
+
+// export const initializePayment = catchAsyncError(
+//   async (req: Request, res: Response, next: NextFunction) => {
+//     try {
+//       const { eventId, amount } = req.body as InitiatePaymentParams;
+//       const userId = req.user?._id;
+
+//       const event = await Event.findById(eventId);
+//       if (!event) {
+//         return next(new ErrorHandler("Event not found", 404));
+//       }
+
+//       const user = await User.findById(userId);
+//       if (!user) {
+//         return next(new ErrorHandler("User not found", 404));
+//       }
+
+//       // Handle free events
+//       if (amount === 0) {
+//         const order = await Order.create({
+//           paymentId: `FREE_${uuidv4()}`,
+//           totalAmount: "0",
+//           event: eventId,
+//           buyer: userId,
+//           status: "completed", // Add a status field for free events
+//         });
+
+//         return res.status(201).json({
+//           success: true,
+//           isFreeEvent: true,
+//           message: "Order created successfully for free event",
+//           order,
+//           orderId: order._id,
+//         });
+//       }
+
+//       // Initialize Flutterwave payment
+//       const tx_ref = `EVENT_${uuidv4()}`;
+
+//       const paymentData = {
+//         tx_ref,
+//         amount: amount,
+//         currency: "NGN",
+//         redirect_url: `${process.env.ORIGIN}/payment/callback`,
+//         customer: {
+//           email: user.email,
+//           name: user.name,
+//           user_id: userId.toString(),
+//         },
+//         customizations: {
+//           title: `${event.title} Ticket Purchase`,
+//           description: `Ticket purchase for ${event.title}`,
+//         },
+//         meta: {
+//           eventId,
+//           userId: user._id,
+//           eventTitle: event.title,
+//         },
+//         payment_options: "card,banktransfer,ussd",
+//         configurations: {
+//           session_duration: 30, // Increased from 10 to give users more time
+//           max_retry_attempt: 3, // Reduced from 5 to prevent excessive retries
+//         },
+//       };
+
+//       const response = await axios.post(
+//         "https://api.flutterwave.com/v3/payments",
+//         paymentData,
+//         {
+//           headers: {
+//             Authorization: `Bearer ${process.env.FLW_SECRET_KEY}`,
+//             "Content-Type": "application/json",
+//           },
+//         }
+//       );
+
+//       if (response.data.status === "success") {
+//         // Create a pending order
+//         const pendingOrder = await Order.create({
+//           paymentId: tx_ref,
+//           totalAmount: amount.toString(),
+//           event: eventId,
+//           buyer: user._id,
+//           status: "pending",
+//         });
+
+//         res.status(200).json({
+//           success: true,
+//           isFreeEvent: false,
+//           paymentUrl: response.data.data.link,
+//           orderId: pendingOrder._id,
+//           tx_ref,
+//         });
+//       } else {
+//         return next(new ErrorHandler("Payment initialization failed", 400));
+//       }
+//     } catch (error: any) {
+//       console.error(
+//         "Payment initialization error:",
+//         error.response?.data || error.message
+//       );
+//       return next(
+//         new ErrorHandler(error.message || "Payment initialization failed", 500)
+//       );
+//     }
+//   }
+// );
+
 export const initializePayment = catchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { eventId, amount } = req.body as InitiatePaymentParams;
+      const { eventId, amount, redirect_url } = req.body as {
+        eventId: string;
+        amount: number;
+        redirect_url: string;
+      };
+      const userId = req.user?._id
 
       const event = await Event.findById(eventId);
       if (!event) {
         return next(new ErrorHandler("Event not found", 404));
       }
 
-      const user = await User.findById(req.user?._id);
+      const user = await User.findById(userId);
       if (!user) {
         return next(new ErrorHandler("User not found", 404));
       }
@@ -47,39 +164,46 @@ export const initializePayment = catchAsyncError(
           totalAmount: "0",
           event: eventId,
           buyer: user._id,
+          status: 'completed'
         });
 
         return res.status(201).json({
           success: true,
+          isFreeEvent: true,
           message: "Order created successfully for free event",
           order,
+          orderId: order._id
         });
       }
 
-      // Initialize Flutterwave payment
+      const tx_ref = `EVENT_${uuidv4()}`;
+      
+      // Use the provided redirect_url instead of environment variable
+      const paymentData = {
+        tx_ref,
+        amount: amount,
+        currency: "NGN",
+        redirect_url, // Use the provided redirect_url
+        customer: {
+          email: user.email,
+          name: user.name,
+          user_id: userId.toString()
+        },
+        customizations: {
+          title: `${event.title} Ticket Purchase`,
+          description: `Ticket purchase for ${event.title}`,
+        },
+        meta: {
+          eventId,
+          userId: user._id,
+          eventTitle: event.title
+        },
+        payment_options: "card,banktransfer,ussd",
+      };
+
       const response = await axios.post(
         "https://api.flutterwave.com/v3/payments",
-        {
-          tx_ref: `EVENT_${uuidv4()}`,
-          amount: amount,
-          currency: "NGN",
-          redirect_url: `${process.env.ORIGIN}/payment/callback`,
-          customer: {
-            email: user.email,
-            name: user.name,
-          },
-          customizations: {
-            title: `${event.title} Ticket Purchase`,
-          },
-          meta: {
-            eventId,
-            userId: user._id,
-          },
-          configurations: {
-            session_duration: 10,
-            max_retry_attempt: 5,
-          },
-        },
+        paymentData,
         {
           headers: {
             Authorization: `Bearer ${process.env.FLW_SECRET_KEY}`,
@@ -89,16 +213,27 @@ export const initializePayment = catchAsyncError(
       );
 
       if (response.data.status === "success") {
+        const pendingOrder = await Order.create({
+          paymentId: tx_ref,
+          totalAmount: amount.toString(),
+          event: eventId,
+          buyer: user._id,
+          status: 'pending'
+        });
+
         res.status(200).json({
           success: true,
+          isFreeEvent: false,
           paymentUrl: response.data.data.link,
+          orderId: pendingOrder._id,
+          tx_ref
         });
       } else {
         return next(new ErrorHandler("Payment initialization failed", 400));
       }
     } catch (error: any) {
-      console.error(error.response?.data || error.message);
-      return next(new ErrorHandler(error.message, 500));
+      console.error("Payment initialization error:", error.response?.data || error.message);
+      return next(new ErrorHandler(error.message || "Payment initialization failed", 500));
     }
   }
 );
@@ -131,14 +266,25 @@ export const verifyPayment = catchAsyncError(
             buyer: userId,
           });
 
-          res.redirect(
-            `${process.env.ORIGIN}/payment/success?orderId=${order._id}`
-          );
+          // Send JSON response instead of redirect
+          return res.status(200).json({
+            success: true,
+            orderId: order._id,
+            order: order,
+          });
         } else {
-          res.redirect(`${process.env.ORIGIN}/payment/failure`);
+          // Payment verification failed
+          return res.status(400).json({
+            success: false,
+            message: "Payment verification failed",
+          });
         }
       } else {
-        res.redirect(`${process.env.ORIGIN}/payment/failure`);
+        // Payment status not successful
+        return res.status(400).json({
+          success: false,
+          message: "Payment was not successful",
+        });
       }
     } catch (error: any) {
       console.error(error.response?.data || error.message);

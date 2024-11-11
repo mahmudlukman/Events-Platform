@@ -4,11 +4,15 @@ import { getOrdersFromResult } from "../../helper";
 interface InitializePaymentRequest {
   eventId: string;
   amount: number;
+  redirect_url: string
 }
 
-interface InitializePaymentResponse {
+interface InitiatePaymentResponse {
   success: boolean;
+  isFreeEvent: boolean;
   paymentUrl?: string;
+  orderId: string;
+  tx_ref?: string;
   message?: string;
   order?: {
     _id: string;
@@ -16,6 +20,7 @@ interface InitializePaymentResponse {
     totalAmount: string;
     event: string;
     buyer: string;
+    status: 'pending' | 'completed' | 'failed';
   };
 }
 
@@ -27,6 +32,8 @@ interface VerifyPaymentRequest {
 
 interface VerifyPaymentResponse {
   success: boolean;
+  orderId?: string;
+  message?: string;
   order?: {
     _id: string;
     paymentId: string;
@@ -39,21 +46,24 @@ interface VerifyPaymentResponse {
 
 export const orderApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
-    initializePayment: builder.mutation<InitializePaymentResponse, InitializePaymentRequest>({
-      query: ({ eventId, amount }) => ({
-        url: "initialize",
+    initializePayment: builder.mutation<InitiatePaymentResponse, InitializePaymentRequest>({
+      query: (body) => ({
+        url: "/initialize-payment",
         method: "POST",
-        body: {
-          eventId,
-          amount,
-        },
+        body,
         credentials: "include",
       }),
-      invalidatesTags: [{ type: "Order", id: "LIST" }],
+      invalidatesTags: (result) => 
+        result?.order 
+          ? [
+              { type: "Order", id: result.order._id },
+              { type: "Order", id: "LIST" }
+            ]
+          : [{ type: "Order", id: "LIST" }],
     }),
     verifyPayment: builder.query<VerifyPaymentResponse, VerifyPaymentRequest>({
       query: ({ status, tx_ref, transaction_id }) => ({
-        url: "verify-payment",
+        url: "/verify-payment",
         method: "GET",
         params: {
           status,
@@ -62,6 +72,8 @@ export const orderApi = apiSlice.injectEndpoints({
         },
         credentials: "include",
       }),
+      transformResponse: (response: VerifyPaymentResponse) => response,
+      transformErrorResponse: (error) => error,
       providesTags: (result) => [
         { type: "Order", id: result?.order?._id },
         { type: "Order", id: "LIST" },
