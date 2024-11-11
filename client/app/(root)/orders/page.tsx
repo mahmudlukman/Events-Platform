@@ -32,6 +32,8 @@ const Orders = () => {
     searchString: searchText,
   });
 
+  console.log(orders)
+
   // Helper function to extract error message
   const getErrorMessage = (
     error: FetchBaseQueryError | SerializedError | undefined
@@ -97,7 +99,7 @@ const Orders = () => {
             </tr>
           </thead>
           <tbody>
-            {orders && orders.length === 0 ? (
+            {orders && orders.orders.length === 0 ? (
               <tr className="border-b">
                 <td colSpan={5} className="py-4 text-center text-gray-500">
                   No orders found.
@@ -106,7 +108,7 @@ const Orders = () => {
             ) : (
               <>
                 {orders &&
-                  orders.map((row: IOrderItem) => (
+                  orders.orders.map((row: IOrderItem) => (
                     <tr
                       key={row._id}
                       className="p-regular-14 lg:p-regular-16 border-b"

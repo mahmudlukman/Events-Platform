@@ -1,29 +1,44 @@
 "use client";
 
+import React, { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
+import { RootState, SearchParamProps } from "@/types";
+import { useGetEventsByUserQuery } from "@/redux/features/event/eventApi";
+import { useGetOrdersByUserQuery } from "@/redux/features/order/orderApi";
 import Collection from "@/components/shared/Collection";
 import { Button } from "@/components/ui/button";
-import { useGetEventsByUserQuery } from "@/redux/features/event/eventApi";
-// import { getOrdersByUser } from "@/lib/actions/order.actions";
-// import { IOrder } from "@/lib/database/models/order.model";
-import { RootState, SearchParamProps } from "@/types";
 import Link from "next/link";
-import React from "react";
-import { useSelector } from "react-redux";
 
 const ProfilePage = ({ searchParams }: SearchParamProps) => {
   const { user } = useSelector((state: RootState) => state.auth);
   const userId = user?._id as string;
 
-  //   const ordersPage = Number(searchParams?.ordersPage) || 1;
-  const eventsPage = Number(searchParams?.eventsPage) || 1;
+  const [ordersPage, setOrdersPage] = useState<number>(1);
+  const [eventsPage, setEventsPage] = useState<number>(1);
 
-  //   const orders = await getOrdersByUser({ userId, page: ordersPage });
+  useEffect(() => {
+    const resolveSearchParams = async () => {
+      const resolvedSearchParams = await searchParams;
+      setOrdersPage(Number(resolvedSearchParams?.ordersPage) || 1);
+      setEventsPage(Number(resolvedSearchParams?.eventsPage) || 1);
+    };
+    resolveSearchParams();
+  }, [searchParams]);
 
-  //   const orderedEvents = orders?.data.map((order: IOrder) => order.event) || [];
-  const { data: organizedEvents } = useGetEventsByUserQuery({
-    userId,
-    page: eventsPage,
-  });
+  const { data: orders, isLoading: isLoadingOrders, isError: isErrorOrders } = useGetOrdersByUserQuery({ userId, page: ordersPage });
+  const { data: organizedEvents, isLoading: isLoadingEvents, isError: isErrorEvents } = useGetEventsByUserQuery({ userId, page: eventsPage });
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const orderedEvents = orders?.orders.map((order: any) => order.event) || [];
+  console.log(orderedEvents)
+
+  if (isLoadingOrders || isLoadingEvents) {
+    return <div>Loading...</div>;
+  }
+
+  if (isErrorOrders || isErrorEvents) {
+    return <div>Error loading data</div>;
+  }
 
   return (
     <>
@@ -37,7 +52,7 @@ const ProfilePage = ({ searchParams }: SearchParamProps) => {
         </div>
       </section>
 
-      {/* <section className="wrapper my-8">
+      <section className="wrapper my-8">
         <Collection
           data={orderedEvents}
           emptyTitle="No event tickets purchased yet"
@@ -48,7 +63,7 @@ const ProfilePage = ({ searchParams }: SearchParamProps) => {
           urlParamName="ordersPage"
           totalPages={orders?.totalPages}
         />
-      </section> */}
+      </section>
 
       {/* Events Organized */}
       <section className="bg-primary-50 bg-dotted-pattern bg-cover bg-center py-5 md:py-10">

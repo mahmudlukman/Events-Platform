@@ -375,11 +375,11 @@ export const getOrdersByUser = catchAsyncError(
         .limit(Number(limit))
         .populate({
           path: "event",
-          select: "_id title",
+          select: "_id title image startDateTime",
         })
         .populate({
           path: "buyer",
-          select: "_id firstName lastName",
+          select: "_id name",
         });
 
       const totalOrders = await Order.countDocuments({ buyer: userId });

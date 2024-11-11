@@ -4,7 +4,7 @@ import { getOrdersFromResult } from "../../helper";
 interface InitializePaymentRequest {
   eventId: string;
   amount: number;
-  redirect_url: string
+  redirect_url: string;
 }
 
 interface InitiatePaymentResponse {
@@ -20,7 +20,7 @@ interface InitiatePaymentResponse {
     totalAmount: string;
     event: string;
     buyer: string;
-    status: 'pending' | 'completed' | 'failed';
+    status: "pending" | "completed" | "failed";
   };
 }
 
@@ -43,21 +43,23 @@ interface VerifyPaymentResponse {
   };
 }
 
-
 export const orderApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
-    initializePayment: builder.mutation<InitiatePaymentResponse, InitializePaymentRequest>({
+    initializePayment: builder.mutation<
+      InitiatePaymentResponse,
+      InitializePaymentRequest
+    >({
       query: (body) => ({
         url: "/initialize-payment",
         method: "POST",
         body,
         credentials: "include",
       }),
-      invalidatesTags: (result) => 
-        result?.order 
+      invalidatesTags: (result) =>
+        result?.order
           ? [
               { type: "Order", id: result.order._id },
-              { type: "Order", id: "LIST" }
+              { type: "Order", id: "LIST" },
             ]
           : [{ type: "Order", id: "LIST" }],
     }),
@@ -95,9 +97,13 @@ export const orderApi = apiSlice.injectEndpoints({
       ],
     }),
     getOrdersByUser: builder.query({
-      query: ({ userId }) => ({
-        url: `user/${userId}`,
+      query: ({ page, limit }) => ({
+        url: "user-orders",
         method: "GET",
+        params: {
+          page,
+          limit,
+        },
         credentials: "include" as const,
       }),
       providesTags: (result) => [
