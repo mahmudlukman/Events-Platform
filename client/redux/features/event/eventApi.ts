@@ -15,14 +15,14 @@ export const eventsApi = apiSlice.injectEndpoints({
       ],
     }),
     getAllEvents: builder.query({
-      query: (params) => ({
+      query: ({ query, limit, page, category }) => ({
         url: "get-events",
         method: "GET",
         params: {
-          query: params.query,
-          category: params.category,
-          page: params.page,
-          pageSize: params.pageSize,
+          query,
+          limit,
+          page,
+          category,
         },
         credentials: "include" as const,
       }),
@@ -44,13 +44,13 @@ export const eventsApi = apiSlice.injectEndpoints({
       providesTags: (result, error, id) => [{ type: "Event", id }],
     }),
     getEventsByUser: builder.query({
-      query: ({ userId, page, pageSize }) => ({
+      query: ({ userId, page, limit }) => ({
         url: "get-user-event",
         method: "GET",
         params: {
           userId,
           page,
-          pageSize,
+          limit,
         },
         credentials: "include" as const,
       }),
@@ -60,14 +60,14 @@ export const eventsApi = apiSlice.injectEndpoints({
       ],
     }),
     getRelatedEventsByCategory: builder.query({
-      query: ({ categoryId, eventId, page, pageSize }) => ({
+      query: ({ categoryId, eventId, page, limit }) => ({
         url: "get-related-event",
         method: "GET",
         params: {
           categoryId,
           eventId,
           page,
-          pageSize,
+          limit,
         },
         credentials: "include" as const,
       }),

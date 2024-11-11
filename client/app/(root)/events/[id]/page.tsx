@@ -24,6 +24,8 @@ const EventDetails = ({ params, searchParams }: SearchParamProps) => {
 
   const eventData = event?.event || event;
 
+  console.log(eventData)
+
   const {
     data: relatedEventsData,
     isLoading: isRelatedLoading,
@@ -33,7 +35,6 @@ const EventDetails = ({ params, searchParams }: SearchParamProps) => {
       categoryId: eventData?.category?._id || "",
       eventId: id,
       page: resolvedSearchParams.page?.toString() || "1",
-      pageSize: 3,
     },
     {
       skip: !eventData?.category?._id,

@@ -6,6 +6,7 @@ import axios from "axios";
 import { v4 as uuidv4 } from "uuid";
 import User from "../models/user.model";
 import Event from "../models/event.model";
+import mongoose from "mongoose";
 require("dotenv").config();
 const Flutterwave = require("flutterwave-node-v3");
 const flw = new Flutterwave(
@@ -300,7 +301,18 @@ export const getOrdersByEvent = catchAsyncError(
         return next(new ErrorHandler("Event ID is required", 400));
       }
 
+      const query: any = {
+        event: new mongoose.Types.ObjectId(eventId as string),
+      };
+
+      if (searchString) {
+        query["buyer.name"] = { $regex: searchString, $options: "i" };
+      }
+
       const orders = await Order.aggregate<IOrderItem>([
+        {
+          $match: query,
+        },
         {
           $lookup: {
             from: "users",
@@ -308,9 +320,6 @@ export const getOrdersByEvent = catchAsyncError(
             foreignField: "_id",
             as: "buyer",
           },
-        },
-        {
-          $unwind: "$buyer",
         },
         {
           $lookup: {
@@ -321,9 +330,6 @@ export const getOrdersByEvent = catchAsyncError(
           },
         },
         {
-          $unwind: "$event",
-        },
-        {
           $project: {
             _id: 1,
             totalAmount: 1,
@@ -332,16 +338,8 @@ export const getOrdersByEvent = catchAsyncError(
             eventTitle: "$event.title",
             eventId: "$event._id",
             buyer: {
-              $concat: ["$buyer.firstName", " ", "$buyer.lastName"],
+              $concat: ["$buyer[0].name"],
             },
-          },
-        },
-        {
-          $match: {
-            $and: [
-              { eventId: new Object(eventId) },
-              { buyer: { $regex: searchString, $options: "i" } },
-            ],
           },
         },
       ]);

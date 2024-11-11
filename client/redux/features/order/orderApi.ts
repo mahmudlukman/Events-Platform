@@ -83,7 +83,7 @@ export const orderApi = apiSlice.injectEndpoints({
     }),
     getOrdersByEvent: builder.query({
       query: ({ eventId, searchString }) => ({
-        url: "event",
+        url: "orders",
         method: "GET",
         params: {
           eventId,
