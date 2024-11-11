@@ -1,32 +1,14 @@
 /* eslint-disable react-hooks/rules-of-hooks */
-import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/router';
+import React from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { CheckCircle } from 'lucide-react';
 
 const PaymentSuccess = () => {
-  const [router, setRouter] = useState<ReturnType<typeof useRouter> | null>(null);
-
-  useEffect(() => {
-    setRouter(useRouter());
-  }, []);
-
-  if (!router) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-50">
-        <Card className="w-full max-w-md mx-4">
-          <CardHeader className="text-center">
-            <CardTitle className="text-2xl font-bold text-gray-600">
-              Loading...
-            </CardTitle>
-          </CardHeader>
-        </Card>
-      </div>
-    );
-  }
-
-  const { orderId } = router.query;
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const orderId = searchParams.get('orderId');
 
   const handleViewEvents = () => {
     router.push('/profile');
@@ -58,7 +40,7 @@ const PaymentSuccess = () => {
             onClick={handleViewEvents}
             className="bg-blue-600 hover:bg-blue-700"
           >
-            View My Courses
+            View My Event
           </Button>
         </CardFooter>
       </Card>

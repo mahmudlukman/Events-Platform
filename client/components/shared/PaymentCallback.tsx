@@ -1,31 +1,21 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 import React, { useEffect, useState } from 'react';
-import { useRouter } from 'next/router';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { useVerifyPaymentQuery } from '@/redux/features/order/orderApi';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 const PaymentCallback = () => {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
-  if (!isMounted || !router.isReady) {
-    return (
-      <Card className="w-full max-w-md mx-auto mt-8">
-        <CardHeader>
-          <CardTitle>Initializing Payment Verification</CardTitle>
-        </CardHeader>
-        <CardContent className="text-center">
-          <p>Please wait...</p>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  const { status, tx_ref, transaction_id } = router.query;
+  const status = searchParams.get('status');
+  const tx_ref = searchParams.get('tx_ref');
+  const transaction_id = searchParams.get('transaction_id');
 
   const { data, error, isLoading } = useVerifyPaymentQuery(
     {
@@ -54,6 +44,19 @@ const PaymentCallback = () => {
       router.push('/payment/failure');
     }
   }, [error, router]);
+
+  if (!isMounted || !status || !tx_ref || !transaction_id) {
+    return (
+      <Card className="w-full max-w-md mx-auto mt-8">
+        <CardHeader>
+          <CardTitle>Initializing Payment Verification</CardTitle>
+        </CardHeader>
+        <CardContent className="text-center">
+          <p>Please wait...</p>
+        </CardContent>
+      </Card>
+    );
+  }
 
   if (isLoading) {
     return (

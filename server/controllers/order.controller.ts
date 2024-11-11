@@ -246,15 +246,12 @@ export const verifyPayment = catchAsyncError(
         req.query as unknown as PaymentVerificationParams;
 
       if (status === "successful") {
-        const transactionDetails = await flw.Transaction.find({
-          id: transaction_id,
-        });
 
         const response = await flw.Transaction.verify({ id: transaction_id });
 
         if (
           response.data.status === "successful" &&
-          response.data.amount === transactionDetails.amount &&
+          response.data.amount &&
           response.data.currency === "NGN"
         ) {
           const { eventId, userId } = response.data.meta;
