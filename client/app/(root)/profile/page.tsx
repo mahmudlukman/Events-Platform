@@ -39,7 +39,6 @@ const ProfilePage = ({ searchParams }: SearchParamProps) => {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const orderedEvents = orders?.orders.map((order: any) => order.event) || [];
-  console.log(orderedEvents);
 
   if (isLoadingOrders || isLoadingEvents) {
     return <Loading />;

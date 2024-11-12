@@ -5,10 +5,10 @@ import { formatDateTime, formatPrice } from "@/lib/utils";
 import { IOrderItem } from "@/types";
 import Search from "@/components/shared/Search";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Skeleton } from "@/components/ui/skeleton";
 import { useSearchParams } from "next/navigation";
 import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 import { SerializedError } from "@reduxjs/toolkit";
+import Loading from "./loading";
 
 interface ErrorResponse {
   data?: {
@@ -32,8 +32,6 @@ const Orders = () => {
     searchString: searchText,
   });
 
-  console.log(orders)
-
   // Helper function to extract error message
   const getErrorMessage = (
     error: FetchBaseQueryError | SerializedError | undefined
@@ -53,15 +51,7 @@ const Orders = () => {
 
   // Loading state
   if (isLoading) {
-    return (
-      <div className="wrapper mt-8">
-        <div className="space-y-4">
-          {[1, 2, 3].map((i) => (
-            <Skeleton key={i} className="h-16 w-full" />
-          ))}
-        </div>
-      </div>
-    );
+    return <Loading />;
   }
 
   // Error state

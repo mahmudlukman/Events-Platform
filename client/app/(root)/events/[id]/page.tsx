@@ -10,6 +10,7 @@ import { formatDateTime } from "@/lib/utils";
 import { SearchParamProps } from "@/types";
 import Image from "next/image";
 import { use } from "react";
+import Loading from "./loading";
 
 const EventDetails = ({ params, searchParams }: SearchParamProps) => {
   const resolvedParams = use(params);
@@ -23,8 +24,6 @@ const EventDetails = ({ params, searchParams }: SearchParamProps) => {
   } = useGetEventByIdQuery({ id });
 
   const eventData = event?.event || event;
-
-  console.log(eventData)
 
   const {
     data: relatedEventsData,
@@ -42,7 +41,7 @@ const EventDetails = ({ params, searchParams }: SearchParamProps) => {
   );
 
   if (isEventLoading || isRelatedLoading) {
-    return <div>Loading...</div>;
+    return <Loading />;
   }
 
   if (isEventError || isRelatedError) {
