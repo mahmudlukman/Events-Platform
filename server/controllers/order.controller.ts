@@ -31,113 +31,6 @@ interface InitiatePaymentParams {
   amount: number;
 }
 
-// export const initializePayment = catchAsyncError(
-//   async (req: Request, res: Response, next: NextFunction) => {
-//     try {
-//       const { eventId, amount } = req.body as InitiatePaymentParams;
-//       const userId = req.user?._id;
-
-//       const event = await Event.findById(eventId);
-//       if (!event) {
-//         return next(new ErrorHandler("Event not found", 404));
-//       }
-
-//       const user = await User.findById(userId);
-//       if (!user) {
-//         return next(new ErrorHandler("User not found", 404));
-//       }
-
-//       // Handle free events
-//       if (amount === 0) {
-//         const order = await Order.create({
-//           paymentId: `FREE_${uuidv4()}`,
-//           totalAmount: "0",
-//           event: eventId,
-//           buyer: userId,
-//           status: "completed", // Add a status field for free events
-//         });
-
-//         return res.status(201).json({
-//           success: true,
-//           isFreeEvent: true,
-//           message: "Order created successfully for free event",
-//           order,
-//           orderId: order._id,
-//         });
-//       }
-
-//       // Initialize Flutterwave payment
-//       const tx_ref = `EVENT_${uuidv4()}`;
-
-//       const paymentData = {
-//         tx_ref,
-//         amount: amount,
-//         currency: "NGN",
-//         redirect_url: `${process.env.ORIGIN}/payment/callback`,
-//         customer: {
-//           email: user.email,
-//           name: user.name,
-//           user_id: userId.toString(),
-//         },
-//         customizations: {
-//           title: `${event.title} Ticket Purchase`,
-//           description: `Ticket purchase for ${event.title}`,
-//         },
-//         meta: {
-//           eventId,
-//           userId: user._id,
-//           eventTitle: event.title,
-//         },
-//         payment_options: "card,banktransfer,ussd",
-//         configurations: {
-//           session_duration: 30, // Increased from 10 to give users more time
-//           max_retry_attempt: 3, // Reduced from 5 to prevent excessive retries
-//         },
-//       };
-
-//       const response = await axios.post(
-//         "https://api.flutterwave.com/v3/payments",
-//         paymentData,
-//         {
-//           headers: {
-//             Authorization: `Bearer ${process.env.FLW_SECRET_KEY}`,
-//             "Content-Type": "application/json",
-//           },
-//         }
-//       );
-
-//       if (response.data.status === "success") {
-//         // Create a pending order
-//         const pendingOrder = await Order.create({
-//           paymentId: tx_ref,
-//           totalAmount: amount.toString(),
-//           event: eventId,
-//           buyer: user._id,
-//           status: "pending",
-//         });
-
-//         res.status(200).json({
-//           success: true,
-//           isFreeEvent: false,
-//           paymentUrl: response.data.data.link,
-//           orderId: pendingOrder._id,
-//           tx_ref,
-//         });
-//       } else {
-//         return next(new ErrorHandler("Payment initialization failed", 400));
-//       }
-//     } catch (error: any) {
-//       console.error(
-//         "Payment initialization error:",
-//         error.response?.data || error.message
-//       );
-//       return next(
-//         new ErrorHandler(error.message || "Payment initialization failed", 500)
-//       );
-//     }
-//   }
-// );
-
 export const initializePayment = catchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -337,9 +230,7 @@ export const getOrdersByEvent = catchAsyncError(
             paymentId: 1,
             eventTitle: "$event.title",
             eventId: "$event._id",
-            buyer: {
-              $concat: ["$buyer[0].name"],
-            },
+            buyer: "$buyer.name",
           },
         },
       ]);

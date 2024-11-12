@@ -8,6 +8,7 @@ import { useGetOrdersByUserQuery } from "@/redux/features/order/orderApi";
 import Collection from "@/components/shared/Collection";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import Loading from "./loading";
 
 const ProfilePage = ({ searchParams }: SearchParamProps) => {
   const { user } = useSelector((state: RootState) => state.auth);
@@ -25,15 +26,23 @@ const ProfilePage = ({ searchParams }: SearchParamProps) => {
     resolveSearchParams();
   }, [searchParams]);
 
-  const { data: orders, isLoading: isLoadingOrders, isError: isErrorOrders } = useGetOrdersByUserQuery({ userId, page: ordersPage });
-  const { data: organizedEvents, isLoading: isLoadingEvents, isError: isErrorEvents } = useGetEventsByUserQuery({ userId, page: eventsPage });
+  const {
+    data: orders,
+    isLoading: isLoadingOrders,
+    isError: isErrorOrders,
+  } = useGetOrdersByUserQuery({ userId, page: ordersPage });
+  const {
+    data: organizedEvents,
+    isLoading: isLoadingEvents,
+    isError: isErrorEvents,
+  } = useGetEventsByUserQuery({ userId, page: eventsPage });
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const orderedEvents = orders?.orders.map((order: any) => order.event) || [];
-  console.log(orderedEvents)
+  console.log(orderedEvents);
 
   if (isLoadingOrders || isLoadingEvents) {
-    return <div>Loading...</div>;
+    return <Loading />;
   }
 
   if (isErrorOrders || isErrorEvents) {

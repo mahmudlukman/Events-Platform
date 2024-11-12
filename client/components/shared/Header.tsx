@@ -43,7 +43,7 @@ const Header = () => {
     return "U";
   };
 
-  const handleSignOut = () => {
+  const handleLogout = () => {
     setLogout(true);
   };
 
@@ -61,7 +61,7 @@ const Header = () => {
             Profile
           </Link>
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={handleSignOut}>Sign Out</DropdownMenuItem>
+        <DropdownMenuItem onClick={handleLogout}>Sign Out</DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );

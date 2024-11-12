@@ -20,6 +20,8 @@ import { FormError } from '../FormError';
 import { FormSuccess } from '../FormSuccess';
 import { useRegisterMutation } from '@/redux/features/auth/authApi';
 import { EyeIcon, EyeOffIcon } from 'lucide-react';
+import { useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 
 const ExtendedRegisterSchema = RegisterSchema.extend({
   confirmPassword: z.string().min(1, "Confirm Password is required"),
@@ -34,6 +36,9 @@ export const RegisterForm = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [register, { isLoading }] = useRegisterMutation();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams?.get('callbackUrl');
 
   const form = useForm<z.infer<typeof ExtendedRegisterSchema>>({
     resolver: zodResolver(ExtendedRegisterSchema),
@@ -53,6 +58,7 @@ export const RegisterForm = () => {
       const { ...registerValues } = values;
       const result = await register(registerValues).unwrap();
       setSuccess(result.message || 'Registration successful! Please check your email for verification.');
+      router.push(callbackUrl || '/login');
       form.reset();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {

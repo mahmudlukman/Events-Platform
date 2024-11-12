@@ -51,7 +51,7 @@ const CategoryFilter = () => {
           All
         </SelectItem>
 
-        {categories?.data?.map((category: Category) => (
+        {categories?.categories?.map((category: Category) => (
           <SelectItem
             value={category.name}
             key={category._id}

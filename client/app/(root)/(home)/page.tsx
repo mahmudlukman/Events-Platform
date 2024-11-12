@@ -9,6 +9,7 @@ import CategoryFilter from "@/components/shared/CategoryFilter";
 import Collection from "@/components/shared/Collection";
 import Search from "@/components/shared/Search";
 import { useGetAllEventsQuery } from "@/redux/features/event/eventApi";
+import Loading from "./loading";
 
 const Home = () => {
   const searchParams = useSearchParams();
@@ -69,9 +70,7 @@ const Home = () => {
         </div>
 
         {isLoading ? (
-          <div className="flex-center min-h-[200px] w-full">
-            <p className="p-regular-16 text-gray-500">Loading events...</p>
-          </div>
+          <Loading />
         ) : error ? (
           <div className="flex-center min-h-[200px] w-full">
             <p className="p-regular-16 text-red-500">
