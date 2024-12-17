@@ -1,12 +1,12 @@
 {
   "name": "server",
   "version": "1.0.0",
-  "main": "build/server.js",
+  "main": "build/server.ts",
   "engines": {
     "node": "18.x"
   },
   "scripts": {
-    "start": "node build/server.js",
+    "start": "node build/server.ts",
     "dev": "ts-node-dev --respawn --transpile-only server.ts",
     "build": "tsc"
   },
