@@ -1,10 +1,11 @@
-/* eslint-disable react-hooks/rules-of-hooks */
-import React, { useEffect, useState } from 'react';
+'use client';
+
+import React, { Suspense, useEffect, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useVerifyPaymentQuery } from '@/redux/features/order/orderApi';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
-const PaymentCallback = () => {
+const PaymentCallbackContent = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isMounted, setIsMounted] = useState(false);
@@ -72,6 +73,23 @@ const PaymentCallback = () => {
   }
 
   return null; // No UI to render, as the component will redirect to success or failure page
+};
+
+const PaymentCallback = () => {
+  return (
+    <Suspense fallback={
+      <Card className="w-full max-w-md mx-auto mt-8">
+        <CardHeader>
+          <CardTitle>Loading Payment Verification</CardTitle>
+        </CardHeader>
+        <CardContent className="text-center">
+          <p>Preparing payment verification...</p>
+        </CardContent>
+      </Card>
+    }>
+      <PaymentCallbackContent />
+    </Suspense>
+  );
 };
 
 export default PaymentCallback;
