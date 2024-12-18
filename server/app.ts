@@ -23,7 +23,7 @@ app.use(cookieParser());
 
 app.use(
   cors({
-    origin: ["https://events-platform-plum.vercel.app"],
+    origin: ["https://events-platform-plum.vercel.app", "http://localhost:3000"],
     // origin: ["http://localhost:3000"],
     credentials: true,
   })
@@ -48,7 +48,7 @@ app.get("/", (req: Request, res: Response, next: NextFunction) => {
 });
 
 //unknown route
-app.all("*", (req: Request, res: Response, next: NextFunction) => {
+app.use((req: Request, res: Response, next: NextFunction) => {
   const err = new Error(`Route ${req.originalUrl} not found`) as any;
   err.statusCode = 404;
   next(err);
