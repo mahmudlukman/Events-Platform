@@ -1,11 +1,12 @@
-'use client';
+"use client";
 
-import * as z from 'zod';
-import { useState } from 'react';
-import { CardWrapper } from './CardWrapper';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Input } from '@/components/ui/input';
+import React, { Suspense } from "react";
+import * as z from "zod";
+import { useState } from "react";
+import { CardWrapper } from "./CardWrapper";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Input } from "@/components/ui/input";
 import {
   Form,
   FormControl,
@@ -13,15 +14,15 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { RegisterSchema } from '@/types';
-import { Button } from '../ui/button';
-import { FormError } from '../FormError';
-import { FormSuccess } from '../FormSuccess';
-import { useRegisterMutation } from '@/redux/features/auth/authApi';
-import { EyeIcon, EyeOffIcon } from 'lucide-react';
-import { useSearchParams } from 'next/navigation';
-import { useRouter } from 'next/navigation';
+} from "@/components/ui/form";
+import { RegisterSchema } from "@/types";
+import { Button } from "../ui/button";
+import { FormError } from "../FormError";
+import { FormSuccess } from "../FormSuccess";
+import { useRegisterMutation } from "@/redux/features/auth/authApi";
+import { EyeIcon, EyeOffIcon } from "lucide-react";
+import { useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 const ExtendedRegisterSchema = RegisterSchema.extend({
   confirmPassword: z.string().min(1, "Confirm Password is required"),
@@ -30,39 +31,42 @@ const ExtendedRegisterSchema = RegisterSchema.extend({
   path: ["confirmPassword"],
 });
 
-export const RegisterForm = () => {
-  const [error, setError] = useState<string | undefined>('');
-  const [success, setSuccess] = useState<string | undefined>('');
+const RegisterFormContent = () => {
+  const [error, setError] = useState<string | undefined>("");
+  const [success, setSuccess] = useState<string | undefined>("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [register, { isLoading }] = useRegisterMutation();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const callbackUrl = searchParams?.get('callbackUrl');
+  const callbackUrl = searchParams?.get("callbackUrl");
 
   const form = useForm<z.infer<typeof ExtendedRegisterSchema>>({
     resolver: zodResolver(ExtendedRegisterSchema),
     defaultValues: {
-      name: '',
-      email: '',
-      password: '',
-      confirmPassword: '',
+      name: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
     },
   });
 
   const onSubmit = async (values: z.infer<typeof ExtendedRegisterSchema>) => {
-    setError('');
-    setSuccess('');
+    setError("");
+    setSuccess("");
 
     try {
       const { ...registerValues } = values;
       const result = await register(registerValues).unwrap();
-      setSuccess(result.message || 'Registration successful! Please check your email for verification.');
-      router.push(callbackUrl || '/login');
+      setSuccess(
+        result.message ||
+          "Registration successful! Please check your email for verification."
+      );
+      router.push(callbackUrl || "/login");
       form.reset();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
-      setError(error.data?.message || 'An error occurred during registration');
+      setError(error.data?.message || "An error occurred during registration");
     }
   };
 
@@ -163,7 +167,9 @@ export const RegisterForm = () => {
                         variant="ghost"
                         size="sm"
                         className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        onClick={() =>
+                          setShowConfirmPassword(!showConfirmPassword)
+                        }
                       >
                         {showConfirmPassword ? (
                           <EyeOffIcon className="h-4 w-4" />
@@ -186,5 +192,33 @@ export const RegisterForm = () => {
         </form>
       </Form>
     </CardWrapper>
+  );
+};
+
+export const RegisterForm = () => {
+  return (
+    <Suspense
+      fallback={
+        <CardWrapper
+          headerLabel="Create an account"
+          backButtonLabel="Already have an account?"
+          backButtonHref="/login"
+        >
+          <div className="space-y-4">
+            <div className="animate-pulse space-y-2">
+              <div className="h-10 bg-gray-200 rounded"></div>
+              <div className="h-10 bg-gray-200 rounded"></div>
+              <div className="h-10 bg-gray-200 rounded"></div>
+              <div className="h-10 bg-gray-200 rounded"></div>
+            </div>
+            <Button disabled className="w-full">
+              Loading...
+            </Button>
+          </div>
+        </CardWrapper>
+      }
+    >
+      <RegisterFormContent />
+    </Suspense>
   );
 };
