@@ -1,11 +1,12 @@
-/* eslint-disable react-hooks/rules-of-hooks */
-import React from 'react';
+'use client';
+
+import React, { Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { CheckCircle } from 'lucide-react';
 
-const PaymentSuccess = () => {
+const PaymentSuccessContent = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const orderId = searchParams.get('orderId');
@@ -45,6 +46,20 @@ const PaymentSuccess = () => {
         </CardFooter>
       </Card>
     </div>
+  );
+};
+
+const PaymentSuccess = () => {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center min-h-screen bg-gray-50">
+        <div className="text-center">
+          <p className="text-gray-600">Loading payment confirmation...</p>
+        </div>
+      </div>
+    }>
+      <PaymentSuccessContent />
+    </Suspense>
   );
 };
 
