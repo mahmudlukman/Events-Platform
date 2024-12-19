@@ -57,7 +57,12 @@ exports.loginUser = (0, catchAsyncError_1.catchAsyncError)(async (req, res, next
 });
 exports.logoutUser = (0, catchAsyncError_1.catchAsyncError)(async (req, res, next) => {
     try {
-        res.cookie("access_token", "", { maxAge: 1 });
+        res.cookie("access_token", "", {
+            maxAge: 1,
+            httpOnly: true,
+            secure: true,
+            sameSite: "none",
+        });
         res
             .status(200)
             .json({ success: true, message: "Logged out successfully" });

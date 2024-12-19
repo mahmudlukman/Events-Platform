@@ -10,8 +10,7 @@ import { CreateUserParams } from "../@types";
 export const createUser = catchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { name, email, password }: CreateUserParams =
-        req.body;
+      const { name, email, password }: CreateUserParams = req.body;
 
       const isEmailExist = await User.findOne({ email });
       if (isEmailExist) {
@@ -68,7 +67,12 @@ export const loginUser = catchAsyncError(
 export const logoutUser = catchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      res.cookie("access_token", "", { maxAge: 1 });
+      res.cookie("access_token", "", {
+        maxAge: 1,
+        httpOnly: true,
+        secure: true,
+        sameSite: "none",
+      });
       res
         .status(200)
         .json({ success: true, message: "Logged out successfully" });
