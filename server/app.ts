@@ -24,6 +24,7 @@ app.use(cookieParser());
 app.use(
   cors({
     origin: ["https://events-platform-plum.vercel.app"],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     credentials: true,
   })
 );

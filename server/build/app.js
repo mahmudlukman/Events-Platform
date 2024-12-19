@@ -21,11 +21,18 @@ exports.app.use(express_1.default.json({ limit: "50mb" }));
 exports.app.use((0, cookie_parser_1.default)());
 //cors=>cross origin resource sharing
 exports.app.use((0, cors_1.default)({
-    origin: ["http://localhost:3000"],
+    origin: ["https://events-platform-plum.vercel.app"],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     credentials: true,
 }));
 //routes
 exports.app.use("/api/v1", auth_route_1.default, user_route_1.default, category_route_1.default, event_route_1.default, order_route_1.default);
+exports.app.get("/", (req, res, next) => {
+    res.status(200).json({
+        success: true,
+        message: "Welcome to Evently API",
+    });
+});
 //testing route
 exports.app.get("/test", (req, res, next) => {
     res.status(200).json({
