@@ -23,7 +23,7 @@ app.use(cookieParser());
 
 app.use(
   cors({
-    origin: ["http://localhost:3000"],
+    origin: ["https://events-platform-plum.vercel.app"],
     credentials: true,
   })
 );
@@ -37,6 +37,13 @@ app.use(
   eventRouter,
   orderRouter
 );
+
+app.get("/", (req: Request, res: Response, next: NextFunction) => {
+  res.status(200).json({
+    success: true,
+    message: "Welcome to Evently API",
+  });
+});
 
 //testing route
 app.get("/test", (req: Request, res: Response, next: NextFunction) => {
